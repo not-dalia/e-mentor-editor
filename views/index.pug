@@ -3,3 +3,26 @@ extends layout
 block content
   h1= title
   p Welcome to #{title}
+
+  mixin mentorrow(name)
+    .mentor-row 
+      .mentor-name(onclick="console.log('view data:  "+ name +"')")= name
+      .mentor-controls
+        .add-post(onclick="console.log('add post:  "+ name +"')") Add Post
+        .edit(onclick="console.log('edit:  "+ name +"')") 
+          a(href="/edit/" + name) Edit Mentor
+        .delete(onclick="console.log('delete:  "+ name +"')") Delete Mentor
+
+
+  mixin editbuttons
+    .editbuttons
+      a.create-mentor(href='#') Create Mentor
+      .mentor-list#mentor-list
+        each mentor in mentors
+          +mentorrow(mentor)
+
+  if error
+    .error= error
+
+  if mentors && authenticated
+      +editbuttons

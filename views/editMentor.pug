@@ -1,0 +1,62 @@
+extends layout
+
+block content
+  h1= title
+
+  mixin mentoreditrow(content)
+      form.editor(id="editor-" + content.language.key)
+        .editor-row  
+          .language-name= content.language.name
+        .editor-row
+          label Name
+          input(type=text, value=content.content.name, name="name")
+        .editor-row
+          label Job Title
+          input(type=text, value=content.content.jobtitle, name="jobtitle")
+        .editor-row
+          label Workplace
+          input(type=text, value=content.content.workplace, name="workplace")
+        .editor-row
+          label tags
+          input(type=text, value=content.content.tags?content.content.tags.join(', '):'', name="tags")
+
+
+
+
+  mixin editmentor
+    .editmentor
+      each lang in mentor
+        +mentoreditrow(lang)
+      button.submit(onclick="save()") Save
+
+  if error
+    .error= error
+
+  if mentor && authenticated
+      +editmentor
+
+  script.
+    let mentor = JSON.parse('!{JSON.stringify(mentor)}');
+    
+    function save(){
+      if (mentor.length == 0) {
+        console.error('failed to save mentor');
+        return;
+      }
+
+      let ref = mentor[0].content.ref;
+      for (let i in mentor){
+        let langKey = mentor[i].language.key;
+
+        mentor[i].content.name = document.querySelector('#editor-'+langKey).name.value.trim() || mentor[i].content.name;
+        mentor[i].content.jobtitle = document.querySelector('#editor-'+langKey).jobtitle.value.trim() || mentor[i].content.jobtitle;
+        mentor[i].content.workplace = document.querySelector('#editor-'+langKey).workplace.value.trim() || mentor[i].content.workplace;
+        mentor[i].content.tags = document.querySelector('#editor-'+langKey).tags.value.split(',') || mentor[i].content.tags;
+
+        for (let tag in mentor[i].content.tags){
+          mentor[i].content.tags[tag] = mentor[i].content.tags[tag].trim();
+        }        
+      }
+
+      console.log(mentor);
+    }

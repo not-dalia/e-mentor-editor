@@ -1,0 +1,17 @@
+body {
+  padding: 50px;
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+a {
+  color: #00b7ff;
+}
+.mentor-row {
+  padding: 10px;
+}
+.mentor-row .mentor-name {
+  font-weight: bold;
+}
+.mentor-row .mentor-controls div {
+  display: inline-block;
+  padding: 5px;
+}

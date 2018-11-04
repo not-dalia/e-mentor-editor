@@ -7,11 +7,20 @@
   },
   "dependencies": {
     "cookie-parser": "~1.4.3",
+    "cookie-session": "^2.0.0-beta.3",
     "debug": "~2.6.9",
+    "dotenv": "^6.1.0",
     "express": "~4.16.0",
+    "fs": "0.0.1-security",
+    "github-api": "^3.0.0",
+    "http": "0.0.0",
     "http-errors": "~1.6.2",
+    "https": "^1.0.0",
+    "js-yaml": "^3.12.0",
     "morgan": "~1.9.0",
     "pug": "2.0.0-beta11",
+    "querystring": "^0.2.0",
+    "request": "^2.88.0",
     "stylus": "0.54.5"
   }
 }
