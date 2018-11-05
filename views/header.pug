@@ -1,5 +1,7 @@
 #header
     .logo
-        .logo-text This is a test
+        .logo-text= appName +  " Editor"
     if !authenticated
         a.login(href="/auth/login") Login
+    else 
+        a.login(href="/auth/logout") Logout

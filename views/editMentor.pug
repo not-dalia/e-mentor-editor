@@ -10,6 +10,7 @@ block content
         .editor-row
           label Name
           input(type=text, value=content.content.name, name="name")
+        
         .editor-row
           label Job Title
           input(type=text, value=content.content.jobtitle, name="jobtitle")
@@ -17,17 +18,41 @@ block content
           label Workplace
           input(type=text, value=content.content.workplace, name="workplace")
         .editor-row
-          label tags
+          label Tags
           input(type=text, value=content.content.tags?content.content.tags.join(', '):'', name="tags")
-
-
-
+        .editor-row
+          label Short Bio
+          textarea(name="shortbio")= content.content.shortbio
+        .editor-row
+          label Long Bio
+          textarea(name="longbio")= content.content.longbio
+        .editor-row
+          label Education and Experience
+          #edu-exp
+        .editor-row
+          label Topics
+          #topics
+        .editor-row
+          label Interests
+          #interests
+        
+   
 
   mixin editmentor
     .editmentor
       each lang in mentor
         +mentoreditrow(lang)
-      button.submit(onclick="save()") Save
+      form.editor(id="editor-shared")
+        .editor-row  
+            .language-name Shared Content
+        .editor-row
+          label Image URL
+          input(type=text, value=mentor[0].content.image, name="image")
+          button#upload-image(onclick="uploadImage()") Upload Image
+        .editor-row
+          label Social Accounts
+          #social.linked
+        button.submit(onclick="save()") Save
 
   if error
     .error= error
@@ -35,7 +60,20 @@ block content
   if mentor && authenticated
       +editmentor
 
+  .dialog#image-upload-dialog(title="Image Upload" style="{z-index:  100;")
+    p Select an image to upload
+    input#select-image(name="image-upload" type="file" accept="image/*")
+    button#image-upload(onclick="uploadImage()") Create
+
   script.
+    $( "#image-upload-dialog" ).dialog({
+        autoOpen: false, modal: true
+      });
+
+    function uploadImage(){
+      $('#image-upload-dialog').dialog('open');
+    }
+
     let mentor = JSON.parse('!{JSON.stringify(mentor)}');
     
     function save(){
@@ -54,9 +92,21 @@ block content
         mentor[i].content.tags = document.querySelector('#editor-'+langKey).tags.value.split(',') || mentor[i].content.tags;
 
         for (let tag in mentor[i].content.tags){
+          if ( mentor[i].content.tags[tag].trim() == '') continue;
           mentor[i].content.tags[tag] = mentor[i].content.tags[tag].trim();
         }        
       }
 
       console.log(mentor);
+      $.ajax('/save/' + ref, {
+        method: 'POST',
+        data: {mentor: JSON.stringify(mentor)},
+        dataType: 'json',
+        error: function(jqXHR, textStatus, errorThrow){
+          console.error(textStatus);
+        },
+        success: function(data){
+          console.log(data);
+        } 
+      });
     }

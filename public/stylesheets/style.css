@@ -1,17 +1,107 @@
+html,
 body {
-  padding: 50px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  min-height: 100%;
+}
+body {
+  margin: 0px;
+  font: 14px "Trebuchet MS", Helvetica, Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow-y: auto;
+  background: #222827;
+  color: #efefef;
 }
 a {
-  color: #00b7ff;
+  color: #fa8072;
 }
-.mentor-row {
-  padding: 10px;
+#header {
+  display: flex;
+  flex-direction: row;
+  padding: 15px 30px;
+  border-bottom: 1px solid #373737;
+  justify-content: space-between;
+  align-items: baseline;
 }
-.mentor-row .mentor-name {
-  font-weight: bold;
+#header .logo {
+  font-size: 1.6em;
 }
-.mentor-row .mentor-controls div {
+#header .login {
+  display: block;
+}
+#main {
+  flex: 1;
+  padding: 10px 30px;
+}
+#main #title-bar {
+  margin: 10px 0 20px 0;
+}
+#main #title-bar h1 {
+  text-transform: uppercase;
+  margin: 0.6em 0 0.3em 0;
+}
+#main #title-bar .description {
+  font-size: 0.95em;
+}
+#main #login-needed {
+  font-size: 1.2em;
+}
+#main .mentor-table {
+  background: #fefefe;
+  color: #222;
+  border-radius: 2px;
+  width: 90%;
+}
+#main .editbuttons {
+  border-bottom: 1px solid #ccc;
+}
+#main .editbuttons button {
+  padding: 20px 20px;
+  background: #f96a59;
+  color: #fff;
+  font-size: 0.9em;
+  text-transform: uppercase;
+  border: none;
+  border-radius: 2px 0px 0px 0px;
+}
+#main .editbuttons button:hover {
+  background: #f85441;
+}
+#main #mentor-list .mentor-row {
+  padding: 10px 15px;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  align-items: center;
+}
+#main #mentor-list .mentor-row .mentor-name,
+#main #mentor-list .mentor-row .mentor-controls {
   display: inline-block;
-  padding: 5px;
+}
+#main #mentor-list .mentor-row .mentor-name a {
+  font-size: 1.1em;
+  text-transform: uppercase;
+  color: #666;
+  text-decoration: none;
+}
+#main #mentor-list .mentor-row .mentor-name a:hover {
+  color: #f85441;
+  text-decoration: underline;
+}
+#main #mentor-list .mentor-row .mentor-controls div {
+  display: inline-block;
+  padding: 5px 8px;
+}
+#main #mentor-list .mentor-row .mentor-controls a {
+  color: #f85441;
+  text-decoration: underline;
+  cursor: pointer;
+}
+#main #mentor-list .mentor-row .mentor-controls a:hover {
+  color: #666;
+}
+#footer {
+  padding: 10px;
 }

@@ -5,6 +5,8 @@ var cookieParser = require("cookie-parser");
 var logger = require("morgan");
 var stylus = require("stylus");
 var cookieSession = require("cookie-session");
+var fs = require("fs");
+var yaml = require("js-yaml");
 
 require("dotenv").config();
 
@@ -25,13 +27,15 @@ app.use(
   })
 );
 
+
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "pug");
+app.set("view cache", false);
 
 app.use(logger("dev"));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.json({limit: '50mb'}));
+app.use(express.urlencoded({ extended: false, limit: '50mb' }));
 app.use(cookieParser());
 app.use(stylus.middleware(path.join(__dirname, "public")));
 app.use(express.static(path.join(__dirname, "public")));
@@ -56,5 +60,22 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render("error");
 });
+
+const config = _loadConfig();
+app.locals = {
+  appName: config.appName
+};
+
+function _loadConfig() {
+  try {
+    var doc = yaml.safeLoad(fs.readFileSync("./config.yml", "utf-8"));
+    console.log(doc);
+    return doc;
+  } catch (e) {
+    console.log(e);
+    return null;
+  }
+}
+
 
 module.exports = app;

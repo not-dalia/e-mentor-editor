@@ -1,0 +1,58 @@
+extends layout
+
+block content
+  h1= title
+  p Welcome to #{title}
+
+  mixin showposts
+    each post in posts
+      a(href='/editPost/'+ post.langName + '/' + post.fileName.replace(/\.md$/, ""))= post.fileName
+      p= post.name
+      p= post.date
+      p= post.lang
+      a(onclick="deletePost('" + post.langName + "','" + post.fileName.replace(/\.md$/, "") + "')") delete post
+      p ----------
+
+  
+  if error
+    .error= error
+
+  if posts && authenticated
+      +showposts
+
+  .dialog#delete-dialog(title="Delete Post")
+    p Are you sure you want to delete this post? 
+    button#delete-post(onclick="confirmDeletePost()") Yes
+    button#cancel-delete(onclick="$('#delete-dialog').dialog('close')") No
+
+  script.
+    function deletePost(lang, post){
+      $('#delete-dialog').dialog('open');
+      $('#delete-dialog').find('#delete-post').attr('data-ref', post);
+      $('#delete-dialog').find('#delete-post').attr('data-lang', lang);
+       
+    }
+
+    function confirmDeletePost(){
+      let ref = $('#delete-dialog').find('#delete-post').attr('data-ref');
+      let lang = $('#delete-dialog').find('#delete-post').attr('data-lang');
+      console.log(ref);
+      $.ajax('/deletePost/' + lang + '/' + ref, {
+        method: 'POST',
+        dataType: 'json',
+        error: function(jqXHR, textStatus, errorThrow){
+          console.error(textStatus);
+        },
+        success: function(data){
+          console.log(data);
+          window.location.reload();
+        } 
+      });
+    }
+
+    $(document).ready(function(){
+
+      $( "#delete-dialog" ).dialog({
+        autoOpen: false, modal: true
+      });
+    });

@@ -8,7 +8,9 @@ var http = require("http"),
 
 router.get("/login/", function(req, res) {
   res.redirect(
-    `https://github.com/login/oauth/authorize?client_id=${process.env.GH_CLIENT_ID}&scope=repo`
+    `https://github.com/login/oauth/authorize?client_id=${
+      process.env.GH_CLIENT_ID
+    }&scope=repo`
   );
 });
 
@@ -24,8 +26,20 @@ router.get("/oauth/", function(req, res) {
       console.log("token", result.token, true);
       req.session.token = result.token;
     }
-    res.json(result);
+    res.statusCode = 307;
+    res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
+    res.header('Pragma', 'no-cache');
+    res.header('Expires', '0');
+    res.header('Surrogate-Control', 'no-store');
+    res.redirect(307, "/loggingIn");
   });
+});
+
+router.get("/logout/", function(req, res) {
+  req.session.token = null;
+  res.statusCode = 307;
+  
+  res.redirect( "/");
 });
 
 router.get("/authenticate/", function(req, res) {
@@ -47,7 +61,7 @@ router.get("/authenticate/", function(req, res) {
 router.get("/set_token/:token", function(req, res) {
   req.session.token = req.params.token;
 
-  res.json({success: true});
+  res.json({ success: true });
 });
 
 function authenticate(code, cb) {

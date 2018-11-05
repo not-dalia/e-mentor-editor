@@ -118,6 +118,49 @@ class GithubHelperObj {
     });
   }
 
+  deleteFile(path, commit, sha) {
+    return new Promise((resolve, reject) => {
+      var dataObj = {
+        message: commit,
+        branch: this.config.branch,
+        sha: sha
+      };
+
+      var data = JSON.stringify(dataObj);
+
+      var reqOptions = {
+        host: "api.github.com",
+        path: `/repos/${this.config.owner}/${
+          this.config.repo
+        }/contents/${path}`,
+        method: "DELETE",
+        headers: {
+          "Content-Length": Buffer.byteLength(data),
+          "Content-Type": "application/json",
+          "User-Agent": "not-dalia",
+          Authorization: `token ${this.token}`
+        }
+      };
+
+      var body = "";
+      var req = https.request(reqOptions, function(res) {
+        res.setEncoding("utf8");
+        res.on("data", function(chunk) {
+          body += chunk;
+        });
+        res.on("end", function() {
+          resolve(JSON.parse(body));
+        });
+      });
+
+      req.write(data);
+      req.end();
+      req.on("error", function(e) {
+        reject(e.message);
+      });
+    });
+  }
+
   async getMentors() {
     let mentorRefs = [];
     for (let lang in this.editorConfig.languages) {
@@ -137,6 +180,46 @@ class GithubHelperObj {
       }
     }
     return mentorRefs;
+  }
+
+  async getMentorPosts(mentorRef) {
+    let postFiles = [];
+    for (let lang in this.editorConfig.languages) {
+      let posts = await this.repo.getContents(
+        this.config.branch,
+        `${this.editorConfig.posts}/${this.editorConfig.languages[lang].name}`,
+        false
+      );
+      if (posts.error || posts.status != 200) {
+        return { error: "failed to get content" };
+      }
+      for (let item in posts.data) {
+        let postContent = await this.repo.getContents(
+          this.config.branch,
+          posts.data[item].path,
+          false
+        );
+        let fileContent = Buffer.from(postContent.data.content, "base64")
+          .toString("utf8")
+          .split("---");
+        if (fileContent.length < 3)
+          res.json({ error: "failed to read content" });
+        let frontMatter = yaml.safeLoad(fileContent[1]);
+        if (frontMatter.ref != mentorRef)
+          continue;
+        let postFile = {
+          fileName: posts.data[item].name,
+          lang: frontMatter.lang,
+          date: frontMatter.date,
+          title: frontMatter.title,
+          ref: frontMatter.ref,
+          langName: this.editorConfig.languages[lang].name,
+          sha: posts.data[item].sha
+        }
+        postFiles.push(postFile);
+      }
+    }
+    return postFiles;
   }
 
   async getMentorDataForEditing(mentorRef) {
@@ -184,20 +267,57 @@ class GithubHelperObj {
     }
   }
 
-  async saveMedia(fileData) {
+  async getPostDataForEditing(lang, postRef) {
     try {
-      let failed = [];
-      let save = await withCatch(
-        this.writeFile(
-          `${this.editorConfig.media}/${Date.now()}${fileData.filename}`,
-          fileData.content,
-          `Uploaded media ${Date.now()}${fileData.filename}`
+      let postFile = {};
+      if (!this.editorConfig) throw new Error("Editor config is missing");
+      let post = await withCatch(
+        this.repo.getContents(
+          this.config.branch,
+          `${this.editorConfig.posts}/${lang}/${postRef}.md`,
+          false
         )
       );
-      if (save.err || save.data.error || !save.content) {
-        failed.push(fileData.filename);
+      if (post.err || post.data.error || post.data.status != 200) {
+        //TODO: create new mentor
+        return { error: "Couldn't retrieve the post" };
       }
-      return { failed };
+      let fileContent = Buffer.from(post.data.data.content, "base64")
+        .toString("utf8")
+        .split("---");
+      if (fileContent.length < 3) return { error: "failed to read content" };
+      let frontMatter = yaml.safeLoad(fileContent[1]);
+      postFile = {
+        ...frontMatter,
+        fileName: postRef,
+        sha: post.data.data.sha,
+        content: fileContent[2]
+      };
+
+      return postFile;
+    } catch (error) {
+      console.warn(error);
+      return { error };
+    }
+  }
+
+  async saveMedia(textFileData) {
+    try {
+      let failed = [];
+      let fileData = JSON.parse(textFileData);
+      let save = await withCatch(
+        this.writeFile(
+          `${this.editorConfig.media}/${Date.now()}${encodeURIComponent(
+            fileData.fileName
+          )}`,
+          fileData.content,
+          `Uploaded media ${Date.now()}${fileData.fileName}`
+        )
+      );
+      if (save.err || save.data.error || !save.data.content) {
+        failed.push(fileData.fileName);
+      }
+      return { failed, imagePath: save.data.content.download_url };
     } catch (error) {
       console.warn(error);
       return { error };
@@ -215,10 +335,10 @@ class GithubHelperObj {
             }/${mentorRef}.md`,
             getBase64(`---\n${yaml.safeDump(mentorData[i].content)}\n---`),
             `Updated ${mentorRef}`,
-            mentorData.sha
+            mentorData[i].sha
           )
         );
-        if (save.err || save.data.error || !save.content) {
+        if (save.err || save.data.error || !save.data.content) {
           failed.push(mentorData[i].language.name);
           continue;
           // throw new Error('mentor deos not exist');
@@ -230,6 +350,103 @@ class GithubHelperObj {
       return { error };
     }
   }
+
+  async savePost(postData) {
+    try {
+      let failed = [];
+      let frontMatter = { ...postData };
+      delete frontMatter.content;
+      delete frontMatter.fileName;
+      delete frontMatter.sha;
+      if (!frontMatter.date) {
+        let date = new Date();
+        frontMatter.date = date.toUTCString();
+      }
+      let save = await withCatch(
+        this.writeFile(
+          `${this.editorConfig.posts}/${postData.langName}/${postData.fileName}.md`,
+          getBase64(
+            `---\n${yaml.safeDump(frontMatter)}\n---\n${postData.content}`
+          ),
+          `Updated ${postData.fileName}`,
+          postData.sha
+        )
+      );
+      if (save.err || save.data.error || !save.data.content) {
+        failed.push(postData.lang);
+        // throw new Error('mentor deos not exist');
+      }
+
+      return { failed };
+    } catch (error) {
+      console.warn(error);
+      return { error };
+    }
+  }
+
+  async deletePost(language, postRef) {
+    try {
+      let failed = [];
+      let postData = await this.getPostDataForEditing(language, postRef);
+      if (postData.error) return { error: postData.error };
+        let deleteResult = await withCatch(
+          this.deleteFile(
+            `${this.editorConfig.posts}/${
+              language
+            }/${postRef}.md`,
+            `Deleted ${postRef}`,
+            postData.sha
+          )
+        );
+        if (
+          deleteResult.err ||
+          deleteResult.data.error ||
+          !deleteResult.data.commit
+        ) {
+          failed.push(postData.name);
+          // throw new Error('mentor deos not exist');
+        }
+      
+      return { failed };
+    } catch (error) {
+      console.warn(error);
+      return { error };
+    }
+  }
+
+  async deleteMentor(mentorRef) {
+    try {
+      let failed = [];
+      let mentorData = await this.getMentorDataForEditing(mentorRef);
+      if (mentorData.error) return { error: mentorData.error };
+      for (let i in mentorData) {
+        if (mentorData[i].create) continue;
+        let deleteResult = await withCatch(
+          this.deleteFile(
+            `${this.editorConfig.mentors}/${
+              mentorData[i].language.name
+            }/${mentorRef}.md`,
+            `Deleted ${mentorRef}`,
+            mentorData[i].sha
+          )
+        );
+        if (
+          deleteResult.err ||
+          deleteResult.data.error ||
+          !deleteResult.data.commit
+        ) {
+          failed.push(mentorData[i].language.name);
+          continue;
+          // throw new Error('mentor deos not exist');
+        }
+      }
+      return { failed };
+    } catch (error) {
+      console.warn(error);
+      return { error };
+    }
+  }
+
 
   async _loadFile(path) {
     return new Promise(async (resolve, reject) => {
@@ -258,5 +475,9 @@ class GithubHelperObj {
 /*********************************************************/
 
 /*********************************************************/
+
+function getBase64(content) {
+  return Buffer.from(content).toString("base64");
+}
 
 module.exports = GithubHelper;

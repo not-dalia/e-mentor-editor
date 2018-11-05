@@ -1,17 +1,97 @@
+html, body
+  min-height:100%
 body
-  padding: 50px
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif
+  margin: 0px
+  font: 14px "Trebuchet MS", Helvetica, Arial, sans-serif
+  display: flex
+  flex-direction: column
+  height: 100%
+  overflow-y: auto
+  background: #222827
+  color: #efefef
+
 a
-  color: #00B7FF
+  color: salmon
 
-.mentor-row
-  padding: 10px 
+#header
+  display:flex
+  flex-direction: row
+  padding: 15px 30px 
+  border-bottom: 1px solid #373737
+  justify-content: space-between
+  align-items: baseline
+  .logo
+    font-size: 1.6em
+  .login
+    display: block
 
-  .mentor-name
-    font-weight: bold
+#main
+  flex: 1
+  padding: 10px 30px
 
-  .mentor-controls 
-    
-    div
-      display: inline-block
-      padding: 5px
+  #title-bar
+    margin: 10px 0 20px 0
+    h1
+      text-transform: uppercase
+      margin: 0.6em 0 0.3em 0
+    .description
+      font-size: 0.95em
+
+  #login-needed
+    font-size: 1.2em
+
+  .mentor-table
+    background: #fefefe
+    color: #222222
+    border-radius: 2px
+    width: 90%
+
+  .editbuttons
+    border-bottom: 1px solid #ccc
+    button
+      padding: 20px 20px
+      background: darken(salmon, 5)
+      color: white
+      font-size: 0.9em
+      text-transform: uppercase
+      border: none 
+      border-radius: 2px 0px 0px 0px
+
+      &:hover
+        background: darken(salmon, 10)
+
+  #mentor-list
+    .mentor-row
+      padding: 10px 15px
+      border-bottom: 1px solid #eee
+      display: flex
+      flex-direction: row
+      justify-content: space-between
+      flex-wrap: wrap
+      align-items: center
+
+      .mentor-name, .mentor-controls
+        display: inline-block
+
+      .mentor-name 
+        a
+          font-size: 1.1em
+          text-transform: uppercase
+          color: #666
+          text-decoration: none;
+          &:hover
+            color: darken(salmon, 10)
+            text-decoration: underline
+      .mentor-controls 
+        div
+          display: inline-block
+          padding: 5px 8px
+        a
+          color: darken(salmon, 10)
+          text-decoration: underline
+          cursor: pointer
+          &:hover
+            color: #666
+
+#footer
+  padding: 10px   
