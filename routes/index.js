@@ -83,7 +83,7 @@ router.get("/addPost/:mentorRef", async function(req, res, next) {
         });
       }
     } else {
-      res.redirect("/");
+      res.redirect(process.env.BASE_URL);
     }
   } catch (err) {
     console.log(err);
@@ -119,7 +119,7 @@ router.get("/mentor/:mentorRef", async function(req, res, next) {
         });
       }
     } else {
-      res.redirect("/");
+      res.redirect(process.env.BASE_URL);
     }
   } catch (err) {
     console.log(err);
@@ -159,7 +159,7 @@ router.get("/editPost/:language/:postRef", async function(req, res, next) {
         });
       }
     } else {
-      res.redirect("/");
+      res.redirect(process.env.BASE_URL);
     }
   } catch (err) {
     console.log(err);
@@ -194,7 +194,7 @@ router.get("/edit/:mentorRef", async function(req, res, next) {
         });
       }
     } else {
-      res.redirect("/");
+      res.redirect(process.env.BASE_URL);
     }
   } catch (err) {
     console.log(err);

@@ -2,6 +2,6 @@
     .logo
         .logo-text= appName +  " Editor"
     if !authenticated
-        a.login(href="/auth/login") Login
+        a.login(href="auth/login") Login
     else 
-        a.login(href="/auth/logout") Logout
+        a.login(href="auth/logout") Logout

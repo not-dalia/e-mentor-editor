@@ -27,23 +27,25 @@ app.use(
   })
 );
 
-
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "pug");
 app.set("view cache", false);
 
 app.use(logger("dev"));
-app.use(express.json({limit: '50mb'}));
-app.use(express.urlencoded({ extended: false, limit: '50mb' }));
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ extended: false, limit: "50mb" }));
 app.use(cookieParser());
-app.use(stylus.middleware(path.join(__dirname, "public")));
-app.use(express.static(path.join(__dirname, "public")));
+app.use(process.env.BASE_URL, stylus.middleware(path.join(__dirname, "public")));
+app.use(process.env.BASE_URL, express.static(path.join(__dirname, "public")));
 
-app.use("/", indexRouter);
-app.use("/users", usersRouter);
+var router = express.Router();
+
+router.use("/", indexRouter);
+router.use("/users", usersRouter);
 //app.use("/github", githubRouter);
-app.use("/auth", authRouter);
+router.use("/auth", authRouter);
+app.use(process.env.BASE_URL, router);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -63,7 +65,8 @@ app.use(function(err, req, res, next) {
 
 const config = _loadConfig();
 app.locals = {
-  appName: config.appName
+  appName: config.appName,
+  baseUrl: process.env.HOST + process.env.BASE_URL
 };
 
 function _loadConfig() {
@@ -76,6 +79,5 @@ function _loadConfig() {
     return null;
   }
 }
-
 
 module.exports = app;

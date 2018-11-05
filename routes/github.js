@@ -13,7 +13,7 @@ let editorConfig;
 
 const authUser = async function(req, res, next) {
   if (!req.session.token) {
-    res.redirect("/auth/login/");
+    res.redirect(process.env.BASE_URL + "auth/login/");
     return;
   }
   if (!gh) {

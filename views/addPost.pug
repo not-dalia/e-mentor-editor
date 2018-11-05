@@ -56,7 +56,7 @@ block content
 
       console.log(post);
 
-      $.ajax('/savePost/', {
+      $.ajax('savePost/', {
         method: 'POST',
         data: {post: JSON.stringify(post)},
         dataType: 'json',
@@ -123,7 +123,7 @@ block content
       $('#image-upload').attr('disabled', 'disabled');
 
       $.ajax({
-        url: '/saveMedia/',
+        url: 'saveMedia/',
         method: 'POST',
         data: {media: JSON.stringify(filedata)},
         dataType: 'json',

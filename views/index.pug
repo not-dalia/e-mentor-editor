@@ -19,18 +19,18 @@ block content
 
   if !authenticated
     #login-needed 
-      a(href="/auth/login") Login
+      a(href="auth/login") Login
       |  to create and edit content.
 
   mixin mentorrow(name)
     .mentor-row 
       .mentor-name(onclick="console.log('view data:  "+ name +"')")
-        a(href="/mentor/" + name)= name
+        a(href="mentor/" + name)= name
       .mentor-controls
         .add-post(onclick="console.log('add post:  "+ name +"')") 
-          a(href="/addPost/" + name) Add Post
+          a(href="addPost/" + name) Add Post
         .edit(onclick="console.log('edit:  "+ name +"')") 
-          a(href="/edit/" + name) Edit Mentor
+          a(href="edit/" + name) Edit Mentor
         .delete(onclick="deleteMentor('" + name + "')") 
           a Delete Mentor
 
@@ -63,13 +63,13 @@ block content
       let mentorName = $('#mentor-ref').val();
       let modifiedMentorName = mentorName.replace(/[^a-z0-9]/gi, ' ').trim().replace(/\s+/gi, '_').toLowerCase();
       $('#mentor-ref').val(modifiedMentorName);
-      window.location.href = '/edit/' + modifiedMentorName + '.md';
+      window.location.href = 'edit/' + modifiedMentorName + '.md';
     }
 
     function deleteMentor(mentor){
       $('#delete-dialog').dialog('open');
       $('#delete-dialog').find('#delete-mentor').attr('data-ref', mentor);
-       $.ajax('/delete/' + mentor, {
+       $.ajax('delete/' + mentor, {
         method: 'POST',
         dataType: 'json',
         error: function(jqXHR, textStatus, errorThrow){
@@ -85,7 +85,7 @@ block content
     function confirmDeleteMentor(){
       let ref = $('#delete-dialog').find('#delete-mentor').attr('data-ref');
       console.log(ref);
-       $.ajax('/delete/' + ref, {
+       $.ajax('delete/' + ref, {
         method: 'POST',
         dataType: 'json',
         error: function(jqXHR, textStatus, errorThrow){

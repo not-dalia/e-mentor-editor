@@ -31,7 +31,7 @@ router.get("/oauth/", function(req, res) {
     res.header('Pragma', 'no-cache');
     res.header('Expires', '0');
     res.header('Surrogate-Control', 'no-store');
-    res.redirect(307, "/loggingIn");
+    res.redirect(307, process.env.BASE_URL+"loggingIn");
   });
 });
 
@@ -39,7 +39,7 @@ router.get("/logout/", function(req, res) {
   req.session.token = null;
   res.statusCode = 307;
   
-  res.redirect( "/");
+  res.redirect( process.env.BASE_URL);
 });
 
 router.get("/authenticate/", function(req, res) {

@@ -6,7 +6,7 @@ block content
 
   mixin showposts
     each post in posts
-      a(href='/editPost/'+ post.langName + '/' + post.fileName.replace(/\.md$/, ""))= post.fileName
+      a(href='editPost/'+ post.langName + '/' + post.fileName.replace(/\.md$/, ""))= post.fileName
       p= post.name
       p= post.date
       p= post.lang
@@ -37,7 +37,7 @@ block content
       let ref = $('#delete-dialog').find('#delete-post').attr('data-ref');
       let lang = $('#delete-dialog').find('#delete-post').attr('data-lang');
       console.log(ref);
-      $.ajax('/deletePost/' + lang + '/' + ref, {
+      $.ajax('deletePost/' + lang + '/' + ref, {
         method: 'POST',
         dataType: 'json',
         error: function(jqXHR, textStatus, errorThrow){

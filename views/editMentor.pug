@@ -98,7 +98,7 @@ block content
       }
 
       console.log(mentor);
-      $.ajax('/save/' + ref, {
+      $.ajax('save/' + ref, {
         method: 'POST',
         data: {mentor: JSON.stringify(mentor)},
         dataType: 'json',
