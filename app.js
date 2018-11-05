@@ -41,11 +41,11 @@ app.use(process.env.BASE_URL, express.static(path.join(__dirname, "public")));
 
 var router = express.Router();
 
-router.use("/", indexRouter);
-router.use("/users", usersRouter);
+app.use("/", indexRouter);
+app.use("/users", usersRouter);
 //app.use("/github", githubRouter);
-router.use("/auth", authRouter);
-app.use(process.env.BASE_URL, router);
+app.use("/auth", authRouter);
+//app.use(process.env.BASE_URL, router);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
