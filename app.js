@@ -66,7 +66,9 @@ app.use(function(err, req, res, next) {
 const config = _loadConfig();
 app.locals = {
   appName: config.appName,
-  baseUrl: process.env.HOST + process.env.BASE_URL
+  baseUrl: process.env.HOST + process.env.BASE_URL,
+  moment: require('moment')
+
 };
 
 function _loadConfig() {

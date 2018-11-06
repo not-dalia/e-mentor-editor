@@ -162,64 +162,139 @@ class GithubHelperObj {
   }
 
   async getMentors() {
-    let mentorRefs = [];
-    for (let lang in this.editorConfig.languages) {
-      let mentors = await this.repo.getContents(
-        this.config.branch,
-        `${this.editorConfig.mentors}/${
-          this.editorConfig.languages[lang].name
-        }`,
-        false
-      );
-      if (mentors.error || mentors.status != 200) {
-        return { error: "failed to get content" };
+    return new Promise((resolve, reject) => {
+      let mentorRefs = [];
+      let promises = [];
+      for (let lang in this.editorConfig.languages) {
+        promises.push(
+          this.repo.getContents(
+            this.config.branch,
+            `${this.editorConfig.mentors}/${
+              this.editorConfig.languages[lang].name
+            }`,
+            false
+          )
+        );
       }
-      for (let item in mentors.data) {
-        let mentorRef = mentors.data[item].name;
-        if (mentorRefs.indexOf(mentorRef) < 0) mentorRefs.push(mentorRef);
-      }
-    }
-    return mentorRefs;
+      Promise.all(promises)
+        .then(values => {
+          for (let v in values) {
+            let mentors = values[v];
+            if (mentors.error || mentors.status != 200) {
+              resolve({ error: "failed to get content" });
+            }
+            for (let item in mentors.data) {
+              let mentorRef = mentors.data[item].name;
+              if (mentorRefs.indexOf(mentorRef) < 0) mentorRefs.push(mentorRef);
+            }
+          }
+          resolve(mentorRefs);
+        })
+        .catch(err => {
+          resolve({ error: "failed to get content" });
+        });
+    });
+
+    // for (let lang in this.editorConfig.languages) {
+    //   let mentors = await this.repo.getContents(
+    //     this.config.branch,
+    //     `${this.editorConfig.mentors}/${
+    //       this.editorConfig.languages[lang].name
+    //     }`,
+    //     false
+    //   );
+    //   if (mentors.error || mentors.status != 200) {
+    //     return { error: "failed to get content" };
+    //   }
+    //   for (let item in mentors.data) {
+    //     let mentorRef = mentors.data[item].name;
+    //     if (mentorRefs.indexOf(mentorRef) < 0) mentorRefs.push(mentorRef);
+    //   }
+    // }
   }
 
   async getMentorPosts(mentorRef) {
-    let postFiles = [];
-    for (let lang in this.editorConfig.languages) {
-      let posts = await this.repo.getContents(
-        this.config.branch,
-        `${this.editorConfig.posts}/${this.editorConfig.languages[lang].name}`,
-        false
-      );
-      if (posts.error || posts.status != 200) {
-        return { error: "failed to get content" };
-      }
-      for (let item in posts.data) {
-        let postContent = await this.repo.getContents(
-          this.config.branch,
-          posts.data[item].path,
-          false
+    return new Promise((resolve, reject) => {
+      let postFiles = [];
+      let promises = [];
+      for (let lang in this.editorConfig.languages) {
+        promises.push(
+          this.repo.getContents(
+            this.config.branch,
+            `${this.editorConfig.posts}/${
+              this.editorConfig.languages[lang].name
+            }`,
+            false
+          )
         );
-        let fileContent = Buffer.from(postContent.data.content, "base64")
-          .toString("utf8")
-          .split("---");
-        if (fileContent.length < 3)
-          res.json({ error: "failed to read content" });
-        let frontMatter = yaml.safeLoad(fileContent[1]);
-        if (frontMatter.ref != mentorRef)
-          continue;
-        let postFile = {
-          fileName: posts.data[item].name,
-          lang: frontMatter.lang,
-          date: frontMatter.date,
-          title: frontMatter.title,
-          ref: frontMatter.ref,
-          langName: this.editorConfig.languages[lang].name,
-          sha: posts.data[item].sha
-        }
-        postFiles.push(postFile);
+      }
+      let innerPromises = [];
+      Promise.all(promises)
+        .then(values => {
+          for (let v in values) {
+            let posts = values[v];
+            if (posts.error || posts.status != 200) {
+              resolve({ error: "failed to get content" });
+            }
+            for (let item in posts.data) {
+              innerPromises.push(
+                this.repo.getContents(
+                  this.config.branch,
+                  posts.data[item].path,
+                  false
+                )
+              );
+            }
+          }
+        })
+        .then(data => {
+          Promise.all(innerPromises)
+            .then(innerValues => {
+              for (let nv in innerValues) {
+                let postContent = innerValues[nv];
+                let fileContent = Buffer.from(
+                  postContent.data.content,
+                  "base64"
+                )
+                  .toString("utf8")
+                  .split("---");
+                if (fileContent.length < 3)
+                  resolve({ error: "failed to read content" });
+                let frontMatter = yaml.safeLoad(fileContent[1]);
+                if (frontMatter.ref != mentorRef) continue;
+                let postFile = {
+                  fileName: postContent.data.name,
+                  lang: frontMatter.lang,
+                  date: frontMatter.date,
+                  title: frontMatter.title,
+                  ref: frontMatter.ref,
+                  langName: this.findLanguage(frontMatter.lang, 'name'),
+                  sha: postContent.data.sha
+                };
+                postFiles.push(postFile);
+              }
+              resolve(postFiles);
+            })
+            .catch(innerErr => {
+              resolve({ error: "failed to get content" });
+            });
+        })
+        .catch(err => {
+          resolve({ error: "failed to get content" });
+        });
+    });
+  }
+  
+  findLanguage(known, wanted){
+    let found;
+    let knownKey = wanted=='key'?'name':'key';
+    for(let lang in this.editorConfig.languages){
+      if (this.editorConfig.languages[lang][knownKey] == known){
+        found = this.editorConfig.languages[lang][wanted];
+        break;
       }
     }
-    return postFiles;
+    return found;
   }
 
   async getMentorDataForEditing(mentorRef) {
@@ -364,7 +439,9 @@ class GithubHelperObj {
       }
       let save = await withCatch(
         this.writeFile(
-          `${this.editorConfig.posts}/${postData.langName}/${postData.fileName}.md`,
+          `${this.editorConfig.posts}/${postData.langName}/${
+            postData.fileName
+          }.md`,
           getBase64(
             `---\n${yaml.safeDump(frontMatter)}\n---\n${postData.content}`
           ),
@@ -389,24 +466,22 @@ class GithubHelperObj {
       let failed = [];
       let postData = await this.getPostDataForEditing(language, postRef);
       if (postData.error) return { error: postData.error };
-        let deleteResult = await withCatch(
-          this.deleteFile(
-            `${this.editorConfig.posts}/${
-              language
-            }/${postRef}.md`,
-            `Deleted ${postRef}`,
-            postData.sha
-          )
-        );
-        if (
-          deleteResult.err ||
-          deleteResult.data.error ||
-          !deleteResult.data.commit
-        ) {
-          failed.push(postData.name);
-          // throw new Error('mentor deos not exist');
-        }
-      
+      let deleteResult = await withCatch(
+        this.deleteFile(
+          `${this.editorConfig.posts}/${language}/${postRef}.md`,
+          `Deleted ${postRef}`,
+          postData.sha
+        )
+      );
+      if (
+        deleteResult.err ||
+        deleteResult.data.error ||
+        !deleteResult.data.commit
+      ) {
+        failed.push(postData.name);
+        // throw new Error('mentor deos not exist');
+      }
+
       return { failed };
     } catch (error) {
       console.warn(error);
@@ -446,7 +521,6 @@ class GithubHelperObj {
       return { error };
     }
   }
-
 
   async _loadFile(path) {
     return new Promise(async (resolve, reject) => {

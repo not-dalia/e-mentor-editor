@@ -1,29 +1,59 @@
 extends layout
 
 block content
-  h1= title
-  p Welcome to #{title}
+  #error-bar
+    if error
+      .error= error
+
+  #title-bar
+    h1= title
+
+  mixin mentorcontrols
+    .view-mentor.mentor-controls
+      .edit(onclick="console.log('edit:  "+ title +"')") 
+        a(href="edit/" + mentorRef) Edit #{title}
+      .separator |
+      .delete(onclick="deleteMentor('" + mentorRef + "')") 
+        a Delete #{title}
 
   mixin showposts
-    each post in posts
-      a(href='editPost/'+ post.langName + '/' + post.fileName.replace(/\.md$/, ""))= post.fileName
-      p= post.name
-      p= post.date
-      p= post.lang
-      a(onclick="deletePost('" + post.langName + "','" + post.fileName.replace(/\.md$/, "") + "')") delete post
-      p ----------
+    .post-table
+      .editbuttons
+        button#create-post(type="button" onclick='window.location.href="addPost/' + mentorRef + '"') Add new post
+      #post-list
+        if posts.length == 0
+          .no-posts
+            | This mentor has no posts yet
+
+        each post in posts
+          .post-row
+            .post-name
+              a(href='editPost/'+ post.langName + '/' + post.fileName.replace(/\.md$/, ""))= post.title
+            .post-info
+              .post-date= moment(post.date).format('MM/DD/YYYY hh:mma')
+            .post-info
+              .post-lang= post.langName
+            .post-info
+              div
+                a.delete-post(onclick="deletePost('" + post.langName + "','" + post.fileName.replace(/\.md$/, "") + "')") Delete Post
 
   
-  if error
-    .error= error
 
   if posts && authenticated
-      +showposts
+    +mentorcontrols
+    +showposts
 
   .dialog#delete-dialog(title="Delete Post")
     p Are you sure you want to delete this post? 
-    button#delete-post(onclick="confirmDeletePost()") Yes
-    button#cancel-delete(onclick="$('#delete-dialog').dialog('close')") No
+    button.dg-btn#cancel-delete(type="button" onclick="$('#delete-dialog').dialog('close')") No
+    button.dg-btn#delete-post(type="button" onclick="confirmDeletePost()") Yes
+
+
+  .dialog#mentor-delete-dialog(title="Delete Mentor")
+    p Are you sure you want to delete this mentor? 
+    button.dg-btn#cancel-delete(type="button" onclick="$('#mentor-delete-dialog').dialog('close')") No
+    button.dg-btn#delete-mentor(type="button" onclick="confirmDeleteMentor()") Yes
+
 
   script.
     function deletePost(lang, post){
@@ -50,9 +80,34 @@ block content
       });
     }
 
+    function deleteMentor(mentor){
+      $('#mentor-delete-dialog').dialog('open');
+      $('#mentor-delete-dialog').find('#delete-mentor').attr('data-ref', mentor);
+    }
+
+    function confirmDeleteMentor(){
+      let ref = $('#mentor-delete-dialog').find('#delete-mentor').attr('data-ref');
+      console.log(ref);
+       $.ajax('delete/' + ref, {
+        method: 'POST',
+        dataType: 'json',
+        error: function(jqXHR, textStatus, errorThrow){
+          console.error(textStatus);
+        },
+        success: function(data){
+          console.log(data);
+          window.location.reload();
+        } 
+      });
+    }
+
     $(document).ready(function(){
 
       $( "#delete-dialog" ).dialog({
+        autoOpen: false, modal: true
+      });
+
+       $( "#mentor-delete-dialog" ).dialog({
         autoOpen: false, modal: true
       });
     });

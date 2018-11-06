@@ -6,8 +6,6 @@ var GithubHelper = require("../utils/github-helper");
 const host = "http://localhost:3000";
 let ghHelper = new GithubHelper();
 
-
-
 const authUser = async function(req, res, next) {
   if (!req.session.token) {
     res.authenticated = false;
@@ -19,7 +17,7 @@ router.use(authUser);
 router.get("/loggingIn", function(req, res, next) {
   res.render("loggingIn", {
     title: "Logging in...",
-    authenticated: res.authenticated,
+    authenticated: res.authenticated
   });
 });
 
@@ -70,9 +68,10 @@ router.get("/addPost/:mentorRef", async function(req, res, next) {
       if (mentor) {
         console.log(mentor);
         res.render("addPost", {
-          title: req.params.mentorRef.replace(/\.md$/, ""),
+          title: "Create new post",
           authenticated: res.authenticated,
-          mentor: mentor, post: {},
+          mentor: mentor,
+          post: {},
           mentorRef: req.params.mentorRef
         });
       } else {
@@ -99,21 +98,33 @@ router.get("/mentor/:mentorRef", async function(req, res, next) {
   try {
     if (res.authenticated) {
       let gitHub = await ghHelper.create(req.session.token);
-      let mentor = await gitHub.getMentorDataForEditing(req.params.mentorRef.replace(/\.md$/, ""));     
+      let mentor = await gitHub.getMentorDataForEditing(
+        req.params.mentorRef.replace(/\.md$/, "")
+      );
       if (mentor) {
         let posts = await gitHub.getMentorPosts(
           req.params.mentorRef.replace(/\.md$/, "")
         );
-        res.render("viewMentor", {
-          title: mentor[0].content.name || req.params.mentorRef.replace(/\.md$/, ""),
-          authenticated: res.authenticated,
-          mentor: mentor,
-          posts: posts,
-          mentorRef: req.params.mentorRef
-        });
+        console.log(posts);
+        if (posts.error)
+          res.render("error", {
+            title: "Error",
+            authenticated: res.authenticated,
+            error: posts.error
+          });
+        else
+          res.render("viewMentor", {
+            title:
+              mentor[0].content.name ||
+              req.params.mentorRef.replace(/\.md$/, ""),
+            authenticated: res.authenticated,
+            mentor: mentor,
+            posts: posts,
+            mentorRef: req.params.mentorRef
+          });
       } else {
-        res.render("viewMentor", {
-          title: "Express",
+        res.render("error", {
+          title: "Error",
           authenticated: res.authenticated,
           error: "Failed to load mentor"
         });
@@ -131,20 +142,20 @@ router.get("/mentor/:mentorRef", async function(req, res, next) {
   }
 });
 
-
 router.get("/editPost/:language/:postRef", async function(req, res, next) {
   try {
     if (res.authenticated) {
       let gitHub = await ghHelper.create(req.session.token);
       let post = await gitHub.getPostDataForEditing(
-        req.params.language, req.params.postRef.replace(/\.md$/, "")
+        req.params.language,
+        req.params.postRef.replace(/\.md$/, "")
       );
       if (post) {
         //post.content = JSON.stringify(post.content);
         let mentor = await gitHub.getMentorDataForEditing(post.ref);
         console.log(post.content);
         res.render("addPost", {
-          title: req.params.postRef.replace(/\.md$/, ""),
+          title: post.title,
           authenticated: res.authenticated,
           mentor: mentor,
           post: post,
@@ -182,8 +193,45 @@ router.get("/edit/:mentorRef", async function(req, res, next) {
       if (mentor) {
         console.log(mentor);
         res.render("editMentor", {
-          title: req.params.mentorRef.replace(/\.md$/, ""),
+          title: mentor[0].content.name || req.params.mentorRef.replace(/\.md$/, ""),
           authenticated: res.authenticated,
+          mentorRef: req.params.mentorRef.replace(/\.md$/, ""),
+          mentor: mentor
+        });
+      } else {
+        res.render("editMentor", {
+          title: "Express",
+          authenticated: res.authenticated,
+          error: "Failed to load mentor"
+        });
+      }
+    } else {
+      res.redirect(process.env.BASE_URL);
+    }
+  } catch (err) {
+    console.log(err);
+    res.render("error", {
+      title: "Error",
+      authenticated: res.authenticated,
+      error: err.message
+    });
+  }
+});
+
+router.get("/edit/:mentorRef", async function(req, res, next) {
+  try {
+    if (res.authenticated) {
+      let gitHub = await ghHelper.create(req.session.token);
+
+      let mentor = await gitHub.getMentorDataForEditing(
+        req.params.mentorRef.replace(/\.md$/, "")
+      );
+      if (mentor) {
+        console.log(mentor);
+        res.render("editMentor", {
+          title: mentor[0].content.name || req.params.mentorRef.replace(/\.md$/, ""),
+          authenticated: res.authenticated,
+          mentorRef: req.params.mentorRef.replace(/\.md$/, ""),
           mentor: mentor
         });
       } else {
@@ -288,7 +336,8 @@ router.post("/deletePost/:language/:postRef", async function(req, res, next) {
       let gitHub = await ghHelper.create(req.session.token);
 
       let deleteData = await gitHub.deletePost(
-        req.params.language, req.params.postRef.replace(/\.md$/, "")
+        req.params.language,
+        req.params.postRef.replace(/\.md$/, "")
       );
       if (deleteData) {
         res.json({
@@ -306,7 +355,6 @@ router.post("/deletePost/:language/:postRef", async function(req, res, next) {
     res.json({ error });
   }
 });
-
 
 router.post("/delete/:mentorRef", async function(req, res, next) {
   try {

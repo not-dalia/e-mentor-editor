@@ -15,6 +15,18 @@ body {
 a {
   color: #fa8072;
 }
+.dialog .dg-btn {
+  border: none;
+  padding: 7px 10px;
+  color: #fff;
+  background: #fa8072;
+  float: right;
+  margin: 0 5px;
+  border-radius: 3px;
+}
+.dialog .dg-btn:hover {
+  background: #f85441;
+}
 #header {
   display: flex;
   flex-direction: row;
@@ -26,12 +38,154 @@ a {
 #header .logo {
   font-size: 1.6em;
 }
+#header .logo a {
+  text-decoration: none;
+  color: #fefefe;
+}
+#header .logo a:hover {
+  color: #e5e5e5;
+}
 #header .login {
   display: block;
 }
 #main {
   flex: 1;
   padding: 10px 30px;
+}
+#main #error-bar .error {
+  padding: 10px;
+  border: 1px solid #802020;
+  border-radius: 2px;
+  background: #301010;
+  font-size: 0.9em;
+}
+#main .edit-mentor-container {
+  display: flex;
+  flex-direction: column;
+}
+#main .edit-mentor-container button {
+  border: none;
+  padding: 10px;
+  color: #fff;
+  background: #f96a59;
+  margin: 5px 8px;
+  border-radius: 3px;
+}
+#main .edit-mentor-container button:hover {
+  background: #f73d28;
+}
+#main .edit-mentor-container button:disabled {
+  background: #666;
+}
+#main .editmentor {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+#main .editmentor .editor {
+  background: #fefefe;
+  color: #222;
+  border-radius: 2px;
+  margin: 10px 10px;
+  flex: 1 0 40%;
+}
+#main .editmentor .editor#editor-shared {
+  flex: 1 0 80%;
+}
+#main .editmentor .editor a {
+  text-transform: uppercase;
+  cursor: pointer;
+}
+#main .editmentor .editor a:hover {
+  color: #999;
+  text-decoration: underline;
+}
+#main .editmentor .editor .editor-row {
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+}
+#main .editmentor .editor .editor-row .edu-row {
+  border: 1px dashed #ccc;
+  padding: 5px;
+  margin: 5px 0;
+  font-size: 0.8em;
+  border-radius: 3px;
+}
+#main .editmentor .editor .editor-row #tags,
+#main .editmentor .editor .editor-row #topics,
+#main .editmentor .editor .editor-row #interests {
+  display: flex;
+  flex: 1;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+#main .editmentor .editor .editor-row #tags input,
+#main .editmentor .editor .editor-row #topics input,
+#main .editmentor .editor .editor-row #interests input {
+  margin-bottom: 2px;
+  margin-right: 2px;
+  flex: 1 0 40%;
+}
+#main .editmentor .editor .editor-row label {
+  color: #333;
+  text-transform: uppercase;
+  padding: 5px;
+  flex: 1;
+}
+#main .editmentor .editor .editor-row .input-row {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+  align-items: center;
+}
+#main .editmentor .editor .editor-row .input-row input {
+  flex: 1 0 150px;
+  margin-right: 5px;
+  margin-bottom: 5px;
+}
+#main .editmentor .editor .editor-row .input-row select {
+  margin-bottom: 5px;
+  margin-right: 5px;
+  flex: 1;
+}
+#main .editmentor .editor .editor-row .input-row button {
+  margin: 0;
+  margin-bottom: 5px;
+}
+#main .editmentor .editor .editor-row textarea {
+  resize: vertical;
+  border: 1px solid #bbb;
+  border-radius: 3px;
+  padding: 5px;
+}
+#main .editmentor .editor .editor-row #longbio {
+  height: 100px;
+}
+#main .editmentor .editor .editor-row #shortbio {
+  height: 70px;
+}
+#main .editmentor .editor .editor-row input,
+#main .editmentor .editor .editor-row select,
+#main .editmentor .editor .editor-row span {
+  padding: 10px;
+  border: 1px solid #bbb;
+  border-radius: 3px;
+  flex: 1;
+}
+#main .editmentor .editor .editor-row option,
+#main .editmentor .editor .editor-row select,
+#main .editmentor .editor .editor-row span {
+  text-transform: capitalize;
+}
+#main .editmentor .editor .language-name {
+  text-transform: uppercase;
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+  color: #666;
 }
 #main #title-bar {
   margin: 10px 0 20px 0;
@@ -46,11 +200,89 @@ a {
 #main #login-needed {
   font-size: 1.2em;
 }
-#main .mentor-table {
+#main .view-mentor.mentor-controls div {
+  font-size: 1.1em;
+  display: inline-block;
+  padding: 5px 8px 5px 0px;
+  color: #666;
+}
+#main .view-mentor.mentor-controls a {
+  color: #fa8072;
+  text-decoration: underline;
+  cursor: pointer;
+}
+#main .view-mentor.mentor-controls a:hover {
+  color: #999;
+}
+#main .mentor-table,
+#main .post-table,
+#main .post-editor {
   background: #fefefe;
   color: #222;
   border-radius: 2px;
-  width: 90%;
+  margin: 0 auto;
+}
+#main .post-editor {
+  padding: 10px 20px;
+}
+#main .post-editor .post-title,
+#main .post-editor .post-language {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+  padding: 5px 0;
+  align-items: center;
+}
+#main .post-editor .post-title label,
+#main .post-editor .post-language label {
+  text-transform: uppercase;
+  margin-right: 15px;
+}
+#main .post-editor .post-title input,
+#main .post-editor .post-language input,
+#main .post-editor .post-title select,
+#main .post-editor .post-language select,
+#main .post-editor .post-title span,
+#main .post-editor .post-language span {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #bbb;
+  border-radius: 3px;
+}
+#main .post-editor .post-title option,
+#main .post-editor .post-language option,
+#main .post-editor .post-title select,
+#main .post-editor .post-language select,
+#main .post-editor .post-title span,
+#main .post-editor .post-language span {
+  text-transform: capitalize;
+}
+#main .post-editor .post-title span,
+#main .post-editor .post-language span {
+  background: #ddd;
+}
+#main .post-editor .button-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+}
+#main .post-editor .button-container button {
+  padding: 20px 20px;
+  background: #f96a59;
+  color: #fff;
+  font-size: 0.9em;
+  text-transform: uppercase;
+  border: none;
+  border-radius: 2px 0px 0px 0px;
+}
+#main .post-editor .button-container button:hover {
+  background: #f85441;
+}
+#main .post-editor .button-container button:disabled {
+  background: #666;
+}
+#main .post-table {
+  margin-top: 20px;
 }
 #main .editbuttons {
   border-bottom: 1px solid #ccc;
@@ -67,7 +299,19 @@ a {
 #main .editbuttons button:hover {
   background: #f85441;
 }
-#main #mentor-list .mentor-row {
+#main #mentor-list .no-posts,
+#main #post-list .no-posts {
+  padding: 20px;
+  text-align: center;
+  flex: 1;
+  color: #aaa;
+  font-size: 1.4em;
+  text-transform: uppercase;
+}
+#main #mentor-list .mentor-row,
+#main #post-list .mentor-row,
+#main #mentor-list .post-row,
+#main #post-list .post-row {
   padding: 10px 15px;
   border-bottom: 1px solid #eee;
   display: flex;
@@ -77,29 +321,117 @@ a {
   align-items: center;
 }
 #main #mentor-list .mentor-row .mentor-name,
-#main #mentor-list .mentor-row .mentor-controls {
+#main #post-list .mentor-row .mentor-name,
+#main #mentor-list .post-row .mentor-name,
+#main #post-list .post-row .mentor-name,
+#main #mentor-list .mentor-row .mentor-controls,
+#main #post-list .mentor-row .mentor-controls,
+#main #mentor-list .post-row .mentor-controls,
+#main #post-list .post-row .mentor-controls,
+#main #mentor-list .mentor-row .post-name,
+#main #post-list .mentor-row .post-name,
+#main #mentor-list .post-row .post-name,
+#main #post-list .post-row .post-name,
+#main #mentor-list .mentor-row .post-info,
+#main #post-list .mentor-row .post-info,
+#main #mentor-list .post-row .post-info,
+#main #post-list .post-row .post-info {
   display: inline-block;
 }
-#main #mentor-list .mentor-row .mentor-name a {
+#main #mentor-list .mentor-row .mentor-name,
+#main #post-list .mentor-row .mentor-name,
+#main #mentor-list .post-row .mentor-name,
+#main #post-list .post-row .mentor-name,
+#main #mentor-list .mentor-row .post-name,
+#main #post-list .mentor-row .post-name,
+#main #mentor-list .post-row .post-name,
+#main #post-list .post-row .post-name {
+  max-width: 200px;
+}
+#main #mentor-list .mentor-row .mentor-name a,
+#main #post-list .mentor-row .mentor-name a,
+#main #mentor-list .post-row .mentor-name a,
+#main #post-list .post-row .mentor-name a,
+#main #mentor-list .mentor-row .post-name a,
+#main #post-list .mentor-row .post-name a,
+#main #mentor-list .post-row .post-name a,
+#main #post-list .post-row .post-name a {
   font-size: 1.1em;
   text-transform: uppercase;
   color: #666;
-  text-decoration: none;
+  text-decoration: underline;
 }
-#main #mentor-list .mentor-row .mentor-name a:hover {
+#main #mentor-list .mentor-row .mentor-name a:hover,
+#main #post-list .mentor-row .mentor-name a:hover,
+#main #mentor-list .post-row .mentor-name a:hover,
+#main #post-list .post-row .mentor-name a:hover,
+#main #mentor-list .mentor-row .post-name a:hover,
+#main #post-list .mentor-row .post-name a:hover,
+#main #mentor-list .post-row .post-name a:hover,
+#main #post-list .post-row .post-name a:hover {
   color: #f85441;
   text-decoration: underline;
 }
-#main #mentor-list .mentor-row .mentor-controls div {
+#main #mentor-list .mentor-row .mentor-controls .post-date,
+#main #post-list .mentor-row .mentor-controls .post-date,
+#main #mentor-list .post-row .mentor-controls .post-date,
+#main #post-list .post-row .mentor-controls .post-date,
+#main #mentor-list .mentor-row .post-info .post-date,
+#main #post-list .mentor-row .post-info .post-date,
+#main #mentor-list .post-row .post-info .post-date,
+#main #post-list .post-row .post-info .post-date,
+#main #mentor-list .mentor-row .mentor-controls .post-lang,
+#main #post-list .mentor-row .mentor-controls .post-lang,
+#main #mentor-list .post-row .mentor-controls .post-lang,
+#main #post-list .post-row .mentor-controls .post-lang,
+#main #mentor-list .mentor-row .post-info .post-lang,
+#main #post-list .mentor-row .post-info .post-lang,
+#main #mentor-list .post-row .post-info .post-lang,
+#main #post-list .post-row .post-info .post-lang {
+  font-size: 0.9em;
+  text-transform: uppercase;
+}
+#main #mentor-list .mentor-row .mentor-controls .delete-post,
+#main #post-list .mentor-row .mentor-controls .delete-post,
+#main #mentor-list .post-row .mentor-controls .delete-post,
+#main #post-list .post-row .mentor-controls .delete-post,
+#main #mentor-list .mentor-row .post-info .delete-post,
+#main #post-list .mentor-row .post-info .delete-post,
+#main #mentor-list .post-row .post-info .delete-post,
+#main #post-list .post-row .post-info .delete-post {
+  font-size: 1em;
+}
+#main #mentor-list .mentor-row .mentor-controls div,
+#main #post-list .mentor-row .mentor-controls div,
+#main #mentor-list .post-row .mentor-controls div,
+#main #post-list .post-row .mentor-controls div,
+#main #mentor-list .mentor-row .post-info div,
+#main #post-list .mentor-row .post-info div,
+#main #mentor-list .post-row .post-info div,
+#main #post-list .post-row .post-info div {
   display: inline-block;
   padding: 5px 8px;
 }
-#main #mentor-list .mentor-row .mentor-controls a {
+#main #mentor-list .mentor-row .mentor-controls a,
+#main #post-list .mentor-row .mentor-controls a,
+#main #mentor-list .post-row .mentor-controls a,
+#main #post-list .post-row .mentor-controls a,
+#main #mentor-list .mentor-row .post-info a,
+#main #post-list .mentor-row .post-info a,
+#main #mentor-list .post-row .post-info a,
+#main #post-list .post-row .post-info a {
   color: #f85441;
   text-decoration: underline;
   cursor: pointer;
 }
-#main #mentor-list .mentor-row .mentor-controls a:hover {
+#main #mentor-list .mentor-row .mentor-controls a:hover,
+#main #post-list .mentor-row .mentor-controls a:hover,
+#main #mentor-list .post-row .mentor-controls a:hover,
+#main #post-list .post-row .mentor-controls a:hover,
+#main #mentor-list .mentor-row .post-info a:hover,
+#main #post-list .mentor-row .post-info a:hover,
+#main #mentor-list .post-row .post-info a:hover,
+#main #post-list .post-row .post-info a:hover {
   color: #666;
 }
 #footer {

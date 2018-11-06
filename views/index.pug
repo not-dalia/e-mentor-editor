@@ -9,8 +9,8 @@ block extraScripts
 
 block content
   
-  if error
-    #error-bar
+  #error-bar
+    if error
       .error= error
 
   #title-bar
@@ -25,7 +25,7 @@ block content
   mixin mentorrow(name)
     .mentor-row 
       .mentor-name(onclick="console.log('view data:  "+ name +"')")
-        a(href="mentor/" + name)= name
+        a(href="mentor/" + name)= name.replace(/\.md$/, "")
       .mentor-controls
         .add-post(onclick="console.log('add post:  "+ name +"')") 
           a(href="addPost/" + name) Add Post
@@ -38,7 +38,7 @@ block content
   mixin editbuttons
     .mentor-table
       .editbuttons
-        button#create-mentor(onclick='$( "#create-dialog" ).dialog( "open" )') Create Mentor
+        button#create-mentor(type="button" onclick='$( "#create-dialog" ).dialog( "open" )') Create Mentor
       .mentor-list#mentor-list
         each mentor in mentors
           +mentorrow(mentor)
@@ -51,12 +51,13 @@ block content
   .dialog#create-dialog(title="Create New")
     label Mentor Reference
     input#mentor-ref(name="mentor-ref" type="text")
-    button#submit-ref(onclick="createNewMentor()") Create
+    button.dg-btn#submit-ref(type="button" onclick="createNewMentor()") Create
 
   .dialog#delete-dialog(title="Delete Mentor")
     p Are you sure you want to delete this mentor? 
-    button#delete-mentor(onclick="confirmDeleteMentor()") Yes
-    button#cancel-delete(onclick="$('#delete-dialog').dialog('close')") No
+    button.dg-btn#cancel-delete(type="button" onclick="$('#delete-dialog').dialog('close')") No
+    button.dg-btn#delete-mentor(type="button" onclick="confirmDeleteMentor()") Yes
+
 
   script.
     function createNewMentor(){
@@ -69,17 +70,6 @@ block content
     function deleteMentor(mentor){
       $('#delete-dialog').dialog('open');
       $('#delete-dialog').find('#delete-mentor').attr('data-ref', mentor);
-       $.ajax('delete/' + mentor, {
-        method: 'POST',
-        dataType: 'json',
-        error: function(jqXHR, textStatus, errorThrow){
-          console.error(textStatus);
-        },
-        success: function(data){
-          console.log(data);
-          window.location.reload();
-        } 
-      });
     }
 
     function confirmDeleteMentor(){

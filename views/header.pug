@@ -1,6 +1,6 @@
 #header
     .logo
-        .logo-text= appName +  " Editor"
+        a(href="/").logo-text= appName +  " Editor"
     if !authenticated
         a.login(href="auth/login") Login
     else 

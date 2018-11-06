@@ -14,26 +14,34 @@ block extraScripts
     
 
 block content
-  h1= title
+  #error-bar
+    if error
+      .error= error
+
+  #title-bar
+    h1= title
 
   mixin addPost
-    .post-title 
-      label Post Title
-      input#post-title(name="post-title" type=text placeholder="Post Title" value=post.title)
-    .post-language
-      label Post Language
+    .post-editor
+      .post-title 
+        label Post Title
+        input#post-title(name="post-title" type=text placeholder="Post Title" value=post.title)
+      .post-language
+        label Post Language
 
-      if post.langName
-        span= post.langName
-      else
-        select#select-language
-          each lang in mentor
-            option(value=lang.language.key)= lang.language.name
-    textarea#addpost-area
-    button#save-post(onclick="savePost()") Save Post
+        if post.langName
+          span= post.langName
+        else
+          select#select-language
+            each lang in mentor
+              option(value=lang.language.key)= lang.language.name
+      .post-title 
+        label Mentor 
+        span= mentorRef.replace(/\.md$/, "")
+      textarea#addpost-area
+      .button-container
+        button#save-post(type="button" onclick="savePost()") Save Post
 
-  if error
-    .error= error
 
   if mentor && authenticated
       +addPost
@@ -41,18 +49,28 @@ block content
   .dialog#image-upload-dialog(title="Image Upload" style="{z-index:  100;")
     p Select an image to upload
     input#select-image(name="image-upload" type="file" accept="image/*")
-    button#image-upload(onclick="uploadImage()") Create
+    button.dg-btn#image-upload(type="button" onclick="uploadImage()") Create
   
   script.
     function savePost(){
+      $('#save-post').attr('disabled', 'disabled');
+      $('#error-bar').html('');
+
       var post = {};
-      post.title = $('#post-title').val();
+      post.title = $('#post-title').val().trim();
       post.fileName = '#{post.fileName}' ||  Date.now() + '_' + $('#post-title').val().replace(/[^a-z0-9]/gi, ' ').trim().replace(/\s+/gi, '_').toLowerCase()
       post.ref = '#{mentorRef}'.replace(/\.md$/, "");
       post.lang = '#{post.lang}' || $('#select-language').val();
       post.langName = '#{post.langName}' || $('#select-language').find('option:selected').text();
       post.content = simplemde.value();
       post.sha = '#{post.sha}'
+
+      if (!post.title || post.title == ''){
+        $('#error-bar').append($('<div class="error">Please enter a post title</div>'));
+        $('#save-post').removeAttr('disabled');
+        $(window).scrollTop(0);
+        return;
+      }
 
       console.log(post);
 
@@ -62,9 +80,15 @@ block content
         dataType: 'json',
         error: function(jqXHR, textStatus, errorThrow){
           console.error(textStatus);
+          $('#error-bar').html('');
+          $('#error-bar').append($('<div class="error">Failed to save post</div>'));
+          $(window).scrollTop(0);
+
+        $('#save-post').removeAttr('disabled');
         },
         success: function(data){
           console.log(data);
+          window.location.href="/mentor/#{mentorRef}"
         } 
       });      
     }
@@ -115,6 +139,8 @@ block content
 
 
     function createfile(fileName, fileMessage, fileContent) {
+      $('#error-bar').html('');
+
       var filedata = JSON.stringify({
         fileName: Date.now()+"_"+fileName,
         "content": fileContent
@@ -130,6 +156,9 @@ block content
         error: function(jqXHR, textStatus, errorThrow){
           console.error(textStatus);
           $('#image-upload').removeAttr('disabled');
+          $('#error-bar').html('');
+          $('#error-bar').append($('<div class="error">Failed to upload image</div>'));
+          $(window).scrollTop(0);
         },
         success: function(data){
           console.log(data.imagePath);

@@ -13,6 +13,18 @@ body
 a
   color: salmon
 
+.dialog
+  .dg-btn
+    border: none
+    padding: 7px 10px
+    color: #ffffff
+    background: salmon
+    float: right
+    margin: 0 5px
+    border-radius: 3px
+    &:hover
+      background: darken(salmon, 10)
+
 #header
   display:flex
   flex-direction: row
@@ -22,12 +34,129 @@ a
   align-items: baseline
   .logo
     font-size: 1.6em
+
+    a
+      text-decoration: none 
+      color: #fefefe
+      &:hover
+        color: darken(#fefefe, 10)
   .login
     display: block
 
 #main
   flex: 1
   padding: 10px 30px
+
+  #error-bar
+    .error
+      padding: 10px;
+      border: 1px solid #802020;
+      border-radius: 2px;
+      background: #301010; 
+      font-size: 0.9em
+
+  .edit-mentor-container
+    display: flex
+    flex-direction: column
+    button 
+      border: none
+      padding: 10px
+      color: #ffffff
+      background: darken(salmon, 5)
+      margin: 5px 8px
+      border-radius: 3px
+      &:hover
+        background: darken(salmon, 15)
+      &:disabled
+        background: #666
+
+  .editmentor
+    display: flex
+    flex-direction: row
+    flex-wrap: wrap
+    align-items: flex-start
+    
+    .editor
+      background: #fefefe
+      color: #222222
+      border-radius: 2px
+      margin: 10px 10px
+      flex: 1 0 40%;
+      
+      &#editor-shared
+        flex: 1 0 80%
+
+      a
+        text-transform: uppercase
+        cursor: pointer
+        &:hover
+          color: #999
+          text-decoration: underline
+      .editor-row
+        padding: 10px
+        display: flex
+        flex-direction: column
+        flex-wrap: nowrap
+        .edu-row
+          border: 1px dashed #ccc
+          padding: 5px
+          margin: 5px 0
+          font-size: 0.8em
+          border-radius: 3px;
+        #tags, #topics, #interests
+          display: flex;
+          flex: 1;
+          flex-direction: row;
+          flex-wrap: wrap;
+          input
+            margin-bottom: 2px
+            margin-right: 2px
+            flex: 1 0 40%
+        label 
+          color: #333
+          text-transform: uppercase
+          padding: 5px
+          flex: 1
+        .input-row
+          flex: 1
+          display: flex
+          flex-wrap: wrap
+          flex-direction: row
+          align-items: center
+          input
+            flex: 1 0 150px
+            margin-right: 5px
+            margin-bottom: 5px
+          select
+            margin-bottom: 5px
+            margin-right: 5px
+            flex: 1
+          button 
+            margin: 0
+            margin-bottom: 5px
+        textarea
+          resize: vertical
+          border: 1px solid #bbb
+          border-radius: 3px
+          padding: 5px
+        #longbio
+          height: 100px
+        #shortbio
+          height: 70px
+
+        input, select, span
+          padding: 10px
+          border: 1px solid #bbb
+          border-radius: 3px
+          flex: 1
+        option, select, span
+          text-transform: capitalize
+
+      .language-name
+        text-transform: uppercase
+        padding: 10px
+        border-bottom: 1px solid #eee
+        color: #666
 
   #title-bar
     margin: 10px 0 20px 0
@@ -40,11 +169,66 @@ a
   #login-needed
     font-size: 1.2em
 
-  .mentor-table
+  .view-mentor.mentor-controls
+    div
+      font-size: 1.1em
+      display: inline-block
+      padding: 5px 8px 5px 0px
+      color: #666
+    a
+      color: salmon
+      text-decoration: underline
+      cursor: pointer
+      &:hover
+        color: #999
+
+  .mentor-table, .post-table, .post-editor
     background: #fefefe
     color: #222222
     border-radius: 2px
-    width: 90%
+    margin: 0 auto
+
+  .post-editor
+    padding: 10px 20px
+    .post-title, .post-language
+      display: flex
+      flex-wrap: wrap
+      flex-direction: row
+      padding: 5px 0
+      align-items: center
+      label 
+        text-transform: uppercase
+        margin-right: 15px
+      input, select, span
+        flex: 1
+        padding: 10px
+        border: 1px solid #bbb
+        border-radius: 3px
+      option, select, span
+        text-transform: capitalize
+      span
+        background: #ddd
+    .button-container
+      display: flex
+      flex-direction: row
+      justify-content: flex-end
+      button
+        padding: 20px 20px
+        background: darken(salmon, 5)
+        color: white
+        font-size: 0.9em
+        text-transform: uppercase
+        border: none 
+        border-radius: 2px 0px 0px 0px
+        &:hover
+          background: darken(salmon, 10)
+        &:disabled
+          background: #666
+
+      
+
+  .post-table
+    margin-top: 20px
 
   .editbuttons
     border-bottom: 1px solid #ccc
@@ -60,8 +244,16 @@ a
       &:hover
         background: darken(salmon, 10)
 
-  #mentor-list
-    .mentor-row
+  #mentor-list, #post-list
+    .no-posts
+      padding: 20px
+      text-align: center
+      flex: 1
+      color: #aaaaaa
+      font-size: 1.4em
+      text-transform: uppercase
+
+    .mentor-row, .post-row
       padding: 10px 15px
       border-bottom: 1px solid #eee
       display: flex
@@ -69,20 +261,24 @@ a
       justify-content: space-between
       flex-wrap: wrap
       align-items: center
-
-      .mentor-name, .mentor-controls
+      .mentor-name, .mentor-controls, .post-name, .post-info
         display: inline-block
-
-      .mentor-name 
+      .mentor-name, .post-name
+        max-width: 200px
         a
           font-size: 1.1em
           text-transform: uppercase
           color: #666
-          text-decoration: none;
+          text-decoration: underline;
           &:hover
             color: darken(salmon, 10)
             text-decoration: underline
-      .mentor-controls 
+      .mentor-controls, .post-info
+        .post-date, .post-lang
+          font-size: 0.9em
+          text-transform: uppercase
+        .delete-post
+           font-size: 1em
         div
           display: inline-block
           padding: 5px 8px

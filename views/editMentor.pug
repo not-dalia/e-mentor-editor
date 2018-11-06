@@ -1,12 +1,16 @@
 extends layout
 
 block content
-  h1= title
+  #error-bar
+    if error
+      .error= error
+
+  #title-bar
+    h1= title
 
   mixin mentoreditrow(content)
       form.editor(id="editor-" + content.language.key)
-        .editor-row  
-          .language-name= content.language.name
+        .editor-row.language-name= content.language.name
         .editor-row
           label Name
           input(type=text, value=content.content.name, name="name")
@@ -19,82 +23,271 @@ block content
           input(type=text, value=content.content.workplace, name="workplace")
         .editor-row
           label Tags
-          input(type=text, value=content.content.tags?content.content.tags.join(', '):'', name="tags")
+          #tags
+          a#add-tag(onclick="addTags(null, '" + content.language.key + "')" style="padding: 5px") +Add tag
         .editor-row
           label Short Bio
-          textarea(name="shortbio")= content.content.shortbio
+          textarea#shortbio(name="shortbio")= content.content.shortbio
         .editor-row
           label Long Bio
-          textarea(name="longbio")= content.content.longbio
+          textarea#longbio(name="longbio")= content.content.longbio
         .editor-row
           label Education and Experience
           #edu-exp
+          a#add-exp(onclick="addEdu({}, '" + content.language.key + "')" style="padding: 5px") +Add Education and Experience
+
         .editor-row
           label Topics
           #topics
+          a#add-topic(onclick="addTopics(null, '" + content.language.key + "')" style="padding: 5px") +Add topic
+
         .editor-row
           label Interests
           #interests
+          a#add-interest(onclick="addInterests(null, '" + content.language.key + "')" style="padding: 5px") +Add interest
         
    
 
   mixin editmentor
     .editmentor
-      each lang in mentor
-        +mentoreditrow(lang)
       form.editor(id="editor-shared")
-        .editor-row  
-            .language-name Shared Content
+        .editor-row.language-name Shared Content
         .editor-row
           label Image URL
-          input(type=text, value=mentor[0].content.image, name="image")
-          button#upload-image(onclick="uploadImage()") Upload Image
+          .input-row
+            input(type=text, value=mentor[0].content.image, name="image")
+            button#upload-image(type="button" onclick="openImageDialog()") Upload Image
         .editor-row
           label Social Accounts
           #social.linked
-        button.submit(onclick="save()") Save
-
-  if error
-    .error= error
+          a#add-social(onclick="addSocialRow()" style="padding: 5px") +Add social account
+      each lang in mentor
+        +mentoreditrow(lang)
+    button.submit#save-btn(type="button" onclick="save()") Save
 
   if mentor && authenticated
+    .edit-mentor-container
       +editmentor
 
   .dialog#image-upload-dialog(title="Image Upload" style="{z-index:  100;")
     p Select an image to upload
     input#select-image(name="image-upload" type="file" accept="image/*")
-    button#image-upload(onclick="uploadImage()") Create
+    button.dg-btn#image-upload(type="button" onclick="uploadImage()") Create
 
   script.
-    $( "#image-upload-dialog" ).dialog({
-        autoOpen: false, modal: true
+    function uploadImage(){
+      console.log("upload image");
+      readURL(document.querySelector('#select-image'));
+    }
+
+    function readURL(input) {
+      if (input.files && input.files[0]) {
+        var reader = new FileReader();
+        reader.onloadend = function() {
+          var base64result = reader.result.substr(reader.result.indexOf(',') + 1);
+          createfile(input.files[0].name, "uploading a file", base64result)
+        }
+        reader.readAsDataURL(input.files[0]);
+      }
+    }
+
+    function createfile(fileName, fileMessage, fileContent) {
+      $('#error-bar').html('');
+
+      var filedata = JSON.stringify({
+        fileName: Date.now()+"_"+fileName,
+        "content": fileContent
       });
 
-    function uploadImage(){
+      $('#image-upload').attr('disabled', 'disabled');
+
+      $.ajax({
+        url: 'saveMedia/',
+        method: 'POST',
+        data: {media: JSON.stringify(filedata)},
+        dataType: 'json',
+        error: function(jqXHR, textStatus, errorThrow){
+          console.error(textStatus);
+          $('#image-upload').removeAttr('disabled');
+          $('#error-bar').html('');
+          $('#error-bar').append($('<div class="error">Failed to upload image</div>'));
+          $(window).scrollTop(0);
+        },
+        success: function(data){
+          console.log(data.imagePath);
+          if (data.imagePath){
+            var url = data.imagePath.replace('(', '%28').replace(')', '%29');
+            document.querySelector('#editor-shared').image.value = url;
+            $( "#image-upload-dialog" ).dialog("close");
+            $('#image-upload').removeAttr('disabled');      
+            $('#select-image').val("");    
+            }
+        } 
+      });
+    }
+
+    function addSocialRow(option, value){
+      let values = [{value: 'link', name:'Website'}, {value: 'facebook', name:'Facebook'}, {value: 'twitter', name: 'Twitter'}, {value: 'instagram', name: 'Instagram'}, {value: 'instagram', name: 'LinkedIn'}];
+      let options = [];
+      for (let i in values){
+        if (option == values[i].value)
+          options.push(`<option value="${values[i].value}" selected>${values[i].name}</option>`);
+        else 
+          options.push(`<option value="${values[i].value}">${values[i].name}</option>`);
+      }
+
+      let row = $(`<div class="input-row social-row" id="social-row-${$('#social').children().length+1}"><div/>`)
+      let select = $(`<select class="social-select">
+        ${options.join('')}
+      <div/>`)
+      let input = $(`<input type="text" value="${value || ''}" id="social-url" name="social-url" placeholder="Account URL"/>`);
+
+      row.append(select);
+      row.append(input);
+
+      $('#social').append(row);
+    }
+
+    function addTags(tag, lang){
+      let input = $(`<input type="text" value="${tag || ''}" name="tags" id="tag-${$('#tags').children.length+1}">`);
+      $('#editor-'+lang).find('#tags').append(input);
+    }
+
+    function addTopics(topic, lang){
+      let input = $(`<input type="text" value="${topic || ''}" name="topics" id="topic-${$('#topics').children.length+1}">`);
+      $('#editor-'+lang).find('#topics').append(input);
+    }
+
+    function addInterests(interest, lang){
+      let input = $(`<input type="text" value="${interest || ''}" name="interests" id="interest-${$('#interests').children.length+1}">`);
+      $('#editor-'+lang).find('#interests').append(input);
+    }
+
+    function addEdu(edu={}, lang){
+      let div = $(`<div class="edu-row" id="eduexp-${$('#edu-exp').children.length+1}" ></div>`);
+      let title = $(`<div class="input-row"><label>Title</label><input type="text" value="${edu.title || ''}" id="edu-title" ></div>`);
+      let place = $(`<div class="input-row"><label>Place</label><input type="text" value="${edu.place || ''}" id="edu-place" ></div>`);
+      let description = $(`<div class="input-row"><label>Description</label><input type="text" value="${edu.description || ''}" id="edu-description" ></div>`);
+      let duration = $(`<div class="input-row"><label>Duration</label><input type="text" value="${edu.duration || ''}" id="edu-duration" ></div>`);
+      div.append(title);
+      div.append(place);
+      div.append(description);
+      div.append(duration);
+      
+      $('#editor-'+lang).find('#edu-exp').append(div);
+    }
+
+    $( "#image-upload-dialog" ).dialog({
+          autoOpen: false, modal: true
+        });
+
+    let mentor = JSON.parse('!{JSON.stringify(mentor)}');
+
+    $(document).ready(function(){
+      for(let key in mentor[0].content['social-accounts'])
+        addSocialRow(key, mentor[0].content['social-accounts'][key]);
+
+      if ($('#social').children().length == 0){
+        addSocialRow();
+      }
+
+      for (let t in mentor){
+        let tags = mentor[t].content.tags;
+        let topics = mentor[t].content.topics;
+        let interests = mentor[t].content.interests;
+        let eduexp = mentor[t].content['education-experience'];
+        for (let tag in tags){
+          addTags(tags[tag], mentor[t].language.key)
+        }
+        for (let topic in topics){
+          addTopics(topics[topic], mentor[t].language.key)
+        }
+        for (let interest in interests){
+          addInterests(interests[interest], mentor[t].language.key)
+        }
+        for (let edu in eduexp){
+          addEdu(eduexp[edu], mentor[t].language.key)
+        }
+        if ($('#editor-'+mentor[t].language.key).find('#tags').children().length == 0){
+          addTags(null, mentor[t].language.key);
+        }
+        if ($('#editor-'+mentor[t].language.key).find('#topics').children().length == 0){
+          addTopics(null, mentor[t].language.key);
+        }
+        if ($('#editor-'+mentor[t].language.key).find('#interests').children().length == 0){
+          addInterests(null, mentor[t].language.key);
+        }
+        if ($('#editor-'+mentor[t].language.key).find('#edu-exp').children().length == 0){
+          addEdu({}, mentor[t].language.key);
+        }
+      }
+    });
+
+    function openImageDialog(){
       $('#image-upload-dialog').dialog('open');
     }
 
-    let mentor = JSON.parse('!{JSON.stringify(mentor)}');
     
     function save(){
+      $('#error-bar').html('');
+
+      $('#save-btn').attr('disabled', 'disabled');
       if (mentor.length == 0) {
         console.error('failed to save mentor');
+        $('#save-btn').removeAttr('disabled');
         return;
       }
 
       let ref = mentor[0].content.ref;
       for (let i in mentor){
         let langKey = mentor[i].language.key;
+        mentor[i].lang = langKey;
+        mentor[i].categories = langKey;
 
-        mentor[i].content.name = document.querySelector('#editor-'+langKey).name.value.trim() || mentor[i].content.name;
-        mentor[i].content.jobtitle = document.querySelector('#editor-'+langKey).jobtitle.value.trim() || mentor[i].content.jobtitle;
-        mentor[i].content.workplace = document.querySelector('#editor-'+langKey).workplace.value.trim() || mentor[i].content.workplace;
-        mentor[i].content.tags = document.querySelector('#editor-'+langKey).tags.value.split(',') || mentor[i].content.tags;
+        mentor[i].content.name = document.querySelector('#editor-'+langKey).name.value.trim();
+        mentor[i].content.jobtitle = document.querySelector('#editor-'+langKey).jobtitle.value.trim();
+        mentor[i].content.workplace = document.querySelector('#editor-'+langKey).workplace.value.trim();
+        mentor[i].content.shortbio = document.querySelector('#editor-'+langKey).shortbio.value.trim();
+        mentor[i].content.longbio = document.querySelector('#editor-'+langKey).longbio.value.trim();
 
-        for (let tag in mentor[i].content.tags){
-          if ( mentor[i].content.tags[tag].trim() == '') continue;
-          mentor[i].content.tags[tag] = mentor[i].content.tags[tag].trim();
-        }        
+        mentor[i].content.image = document.querySelector('#editor-shared').image.value.trim();
+        
+        mentor[i].content.tags = [];
+        let tags = $('#editor-'+langKey).find('#tags').find('input').each((x,el)=>{
+          if (el.value && el.value.trim())
+          mentor[i].content.tags.push(el.value.trim())
+        })
+
+        mentor[i].content.topics = [];
+        let topics = $('#editor-'+langKey).find('#topics').find('input').each((x,el)=>{
+          if (el.value && el.value.trim())
+          mentor[i].content.topics.push(el.value.trim())
+        })
+
+        mentor[i].content.interests = [];
+        let interests = $('#editor-'+langKey).find('#interests').find('input').each((x,el)=>{
+          if (el.value && el.value.trim())
+          mentor[i].content.interests.push(el.value.trim())
+        })
+
+        mentor[i].content['education-experience'] = [];
+        let edu = $('#editor-'+langKey).find('#edu-exp').find('.edu-row').each((x,el)=>{
+          let eduItem = {
+            title: $(el).find('#edu-title').val().trim() ,
+            place: $(el).find('#edu-place').val().trim(),
+            description: $(el).find('#edu-description').val().trim(),
+            duration: $(el).find('#edu-duration').val().trim()
+          }
+          if (eduItem.title || eduItem.place || eduItem.description ||eduItem.duration)
+            mentor[i].content['education-experience'].push(eduItem)
+        })
+
+        mentor[i].content['social-accounts'] = {};
+        let social = $('#editor-shared').find('#social').find('.input-row').each((x,el)=>{
+          if ($(el).find('#social-url').val() && $(el).find('#social-url').val().trim())
+            mentor[i].content['social-accounts'][$(el).find('.social-select').val()] = $(el).find('#social-url').val().trim()
+        })
+       
       }
 
       console.log(mentor);
@@ -104,9 +297,15 @@ block content
         dataType: 'json',
         error: function(jqXHR, textStatus, errorThrow){
           console.error(textStatus);
+          $('#save-btn').removeAttr('disabled');
+          $('#error-bar').html('');
+          $('#error-bar').append($('<div class="error">Failed to save mentor</div>'));
+          $(window).scrollTop(0);
         },
         success: function(data){
           console.log(data);
+          window.location.href="mentor/#{mentorRef}"
+
         } 
       });
     }
