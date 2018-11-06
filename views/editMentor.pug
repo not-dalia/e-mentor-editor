@@ -192,9 +192,9 @@ block content
       }
 
       for (let t in mentor){
-        let tags = mentor[t].content.tags;
-        let topics = mentor[t].content.topics;
-        let interests = mentor[t].content.interests;
+        let tags = Array.isArray(mentor[t].content.tags)?mentor[t].content.tags:[mentor[t].content.tags];
+        let topics =  Array.isArray(mentor[t].content.topics)?mentor[t].content.topics:[mentor[t].content.topics];
+        let interests =  Array.isArray(mentor[t].content.interests)?mentor[t].content.interests:[mentor[t].content.interests];
         let eduexp = mentor[t].content['education-experience'];
         for (let tag in tags){
           addTags(tags[tag], mentor[t].language.key)

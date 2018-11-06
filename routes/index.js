@@ -218,41 +218,6 @@ router.get("/edit/:mentorRef", async function(req, res, next) {
   }
 });
 
-router.get("/edit/:mentorRef", async function(req, res, next) {
-  try {
-    if (res.authenticated) {
-      let gitHub = await ghHelper.create(req.session.token);
-
-      let mentor = await gitHub.getMentorDataForEditing(
-        req.params.mentorRef.replace(/\.md$/, "")
-      );
-      if (mentor) {
-        console.log(mentor);
-        res.render("editMentor", {
-          title: mentor[0].content.name || req.params.mentorRef.replace(/\.md$/, ""),
-          authenticated: res.authenticated,
-          mentorRef: req.params.mentorRef.replace(/\.md$/, ""),
-          mentor: mentor
-        });
-      } else {
-        res.render("editMentor", {
-          title: "Express",
-          authenticated: res.authenticated,
-          error: "Failed to load mentor"
-        });
-      }
-    } else {
-      res.redirect(process.env.BASE_URL);
-    }
-  } catch (err) {
-    console.log(err);
-    res.render("error", {
-      title: "Error",
-      authenticated: res.authenticated,
-      error: err.message
-    });
-  }
-});
 
 router.post("/save/:mentorRef", async function(req, res, next) {
   try {
