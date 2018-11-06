@@ -285,8 +285,13 @@ block content
 
         mentor[i].content['social-accounts'] = {};
         let social = $('#editor-shared').find('#social').find('.input-row').each((x,el)=>{
-          if ($(el).find('#social-url').val() && $(el).find('#social-url').val().trim())
-            mentor[i].content['social-accounts'][$(el).find('.social-select').val()] = $(el).find('#social-url').val().trim()
+          if ($(el).find('#social-url').val() && $(el).find('#social-url').val().trim()){
+            let account = $(el).find('#social-url').val().trim();
+            if ($(el).find('#social-url').val().trim()[0] == '@') {
+              account = `https://${$(el).find('.social-select').val()}.com/${account.replace('@', '')}`
+            }
+            mentor[i].content['social-accounts'][$(el).find('.social-select').val()] = account;
+          }
         })
        
       }
