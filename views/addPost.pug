@@ -88,7 +88,7 @@ block content
         },
         success: function(data){
           console.log(data);
-          window.location.href="/mentor/#{mentorRef}"
+          window.location.href="mentor/#{mentorRef}"
         } 
       });      
     }
@@ -195,6 +195,9 @@ block content
       { 
         element: $("#addpost-area")[0] , 
         promptURLs: true, 
+        blockStyles:{
+          italic: '_'
+        },
         toolbar: [
           "bold", "italic", "heading", "|", "quote", "unordered-list", "ordered-list", "|", "link", "image", "|", "preview", "side-by-side", "fullscreen", "guide",
           { name: "custom",

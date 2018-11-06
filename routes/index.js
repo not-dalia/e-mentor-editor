@@ -57,6 +57,10 @@ router.get("/", async function(req, res, next) {
   }
 });
 
+router.get("/index", async function(req, res, next) {
+ res.redirect(process.env.BASE_URL);
+});
+
 router.get("/addPost/:mentorRef", async function(req, res, next) {
   try {
     if (res.authenticated) {

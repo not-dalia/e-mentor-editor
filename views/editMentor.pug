@@ -241,14 +241,15 @@ block content
       let ref = mentor[0].content.ref;
       for (let i in mentor){
         let langKey = mentor[i].language.key;
-        mentor[i].lang = langKey;
-        mentor[i].categories = langKey;
-
+        mentor[i].content.lang = langKey;
+        mentor[i].content.categories = langKey;
         mentor[i].content.name = document.querySelector('#editor-'+langKey).name.value.trim();
         mentor[i].content.jobtitle = document.querySelector('#editor-'+langKey).jobtitle.value.trim();
         mentor[i].content.workplace = document.querySelector('#editor-'+langKey).workplace.value.trim();
         mentor[i].content.shortbio = document.querySelector('#editor-'+langKey).shortbio.value.trim();
         mentor[i].content.longbio = document.querySelector('#editor-'+langKey).longbio.value.trim();
+        mentor[i].content.published = true;
+
 
         mentor[i].content.image = document.querySelector('#editor-shared').image.value.trim();
         
