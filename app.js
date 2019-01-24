@@ -41,10 +41,10 @@ app.use(express.static(path.join(__dirname, "public")));
 
 var router = express.Router();
 
-app.use("/", indexRouter);
-app.use("/users", usersRouter);
+app.use("/+", indexRouter);
+app.use("/+users", usersRouter);
 //app.use("/github", githubRouter);
-app.use("/auth", authRouter);
+app.use("/+auth", authRouter);
 //app.use(process.env.BASE_URL, router);
 
 // catch 404 and forward to error handler

@@ -127,7 +127,7 @@ block content
     }
 
     function addSocialRow(option, value){
-      let values = [{value: 'link', name:'Website'}, {value: 'facebook', name:'Facebook'}, {value: 'twitter', name: 'Twitter'}, {value: 'instagram', name: 'Instagram'}, {value: 'instagram', name: 'LinkedIn'}];
+      let values = [{value: 'link', name:'Website'}, {value: 'facebook', name:'Facebook'}, {value: 'twitter', name: 'Twitter'}, {value: 'instagram', name: 'Instagram'}, {value: 'linkedin', name: 'LinkedIn'}];
       let options = [];
       for (let i in values){
         if (option == values[i].value)
@@ -181,7 +181,7 @@ block content
           autoOpen: false, modal: true
         });
 
-    let mentor = JSON.parse('!{JSON.stringify(mentor)}');
+    let mentor = !{JSON.stringify(mentor)};
 
     $(document).ready(function(){
       for(let key in mentor[0].content['social-accounts'])
