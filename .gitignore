@@ -62,3 +62,9 @@ typings/
 
 # next.js build output
 .next
+
+# error logs
+forms_error.log
+forms_failed_queries.log
+tracking_error.log
+tracking_failed_queries.log

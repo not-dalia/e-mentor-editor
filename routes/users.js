@@ -1,5 +1,5 @@
-var express = require("express");
-var router = express.Router();
+var express = require('express')
+var router = express.Router()
 // qs = require("querystring");
 
 /* GET users listing. */
@@ -51,4 +51,4 @@ var router = express.Router();
 //   });
 // }
 
-module.exports = router;
+module.exports = router
