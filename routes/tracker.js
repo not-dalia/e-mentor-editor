@@ -12,7 +12,7 @@ router.get('/pixel', (req, res) => {
     'Content-Length': trackImg.length
   })
   console.log(req.query)
-  console.log(req.headers)
+  console.log(req.get('User-Agent'))
   res.end(trackImg)
 
   try {

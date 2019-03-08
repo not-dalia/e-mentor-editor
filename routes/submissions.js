@@ -1,6 +1,7 @@
 var express = require('express')
 var router = express.Router()
 let db = require('../utils/db-helper')
+const logger = require('../utils/logger')
 
 var GithubHelper = require('../utils/github-helper')
 
@@ -18,47 +19,29 @@ const authUser = async function (req, res, next) {
 }
 router.use(authUser)
 
-router.get('/loggingIn', function (req, res, next) {
-  res.render('loggingIn', {
-    title: 'Logging in...',
-    authenticated: res.authenticated
-  })
-})
-
 /* GET home page. */
 router.get('/', async function (req, res, next) {
   try {
     if (res.authenticated) {
-      let gitHub = await ghHelper.create(req.session.token)
-
-      let mentors = await gitHub.getMentors()
-      if (mentors) {
-        console.log(mentors)
-        res.render('index', {
-          title: 'Mentors',
-          authenticated: res.authenticated,
-          mentors: mentors,
-          selectedTab: 'mentors',
-          notifications: res.unreadNotifications
-        })
-      } else {
-        res.render('index', {
-          title: 'Mentors',
-          authenticated: res.authenticated,
-          error: 'Failed to load mentors',
-          notifications: res.unreadNotifications
-        })
-      }
+      let submissions = await db.getSubmissionsWithMetadata()
+      console.log(submissions)
+      res.render('submissions', {
+        title: 'Submissions',
+        submissions: submissions,
+        authenticated: res.authenticated,
+        selectedTab: 'submissions',
+        notifications: res.unreadNotifications
+      })
     } else {
       res.render('index', {
-        title: 'Mentors',
+        title: 'Submissions',
         authenticated: res.authenticated,
         notifications: res.unreadNotifications
       })
     }
   } catch (err) {
     res.render('index', {
-      title: 'Mentors',
+      title: 'Submissions',
       authenticated: res.authenticated,
       error: err.message,
       notifications: res.unreadNotifications
@@ -66,12 +49,39 @@ router.get('/', async function (req, res, next) {
   }
 })
 
-router.get('/index', async function (req, res, next) {
-  res.redirect(process.env.BASE_URL)
+router.get('/request/:id', async function (req, res, next) {
+  try {
+    if (res.authenticated) {
+      let submission = await db.getSubmissionById(req.params.id, false)
+      console.log(submission)
+      db.markSubmissionAsSeen(submission.metadata_id)
+      res.render('request', {
+        title: 'Submission',
+        submissions: submission,
+        authenticated: res.authenticated,
+        selectedTab: 'submissions',
+        notifications: res.unreadNotifications
+      })
+    } else {
+      res.render('index', {
+        title: 'Submission',
+        authenticated: res.authenticated,
+        notifications: res.unreadNotifications
+      })
+    }
+  } catch (err) {
+    res.render('index', {
+      title: 'Submission',
+      authenticated: res.authenticated,
+      error: err.message,
+      notifications: res.unreadNotifications
+    })
+  }
 })
 
 router.get('/test', async function (req, res, next) {
-  res.render('test', { authenticated: res.authenticated })
+  res.render('test', { authenticated: res.authenticated,
+    notifications: res.unreadNotifications })
 })
 
 router.get('/addPost/:mentorRef', async function (req, res, next) {
@@ -90,15 +100,13 @@ router.get('/addPost/:mentorRef', async function (req, res, next) {
           mentor: mentor,
           post: {},
           mentorRef: req.params.mentorRef,
-          selectedTab: 'mentors',
-          notifications: res.unreadNotifications
+          selectedTab: 'mentors'
         })
       } else {
         res.render('addPost', {
           title: 'Add Post',
           authenticated: res.authenticated,
-          error: 'Failed to load mentor',
-          notifications: res.unreadNotifications
+          error: 'Failed to load mentor'
         })
       }
     } else {
@@ -109,8 +117,7 @@ router.get('/addPost/:mentorRef', async function (req, res, next) {
     res.render('error', {
       title: 'Error',
       authenticated: res.authenticated,
-      error: err.message,
-      notifications: res.unreadNotifications
+      error: err.message
     })
   }
 })
@@ -131,8 +138,7 @@ router.get('/mentor/:mentorRef', async function (req, res, next) {
           res.render('error', {
             title: 'Error',
             authenticated: res.authenticated,
-            error: posts.error,
-            notifications: res.unreadNotifications
+            error: posts.error
           })
         } else {
           res.render('viewMentor', {
@@ -142,16 +148,14 @@ router.get('/mentor/:mentorRef', async function (req, res, next) {
             mentor: mentor,
             posts: posts,
             mentorRef: req.params.mentorRef,
-            selectedTab: 'mentors',
-            notifications: res.unreadNotifications
+            selectedTab: 'mentors'
           })
         }
       } else {
         res.render('error', {
           title: 'Error',
           authenticated: res.authenticated,
-          error: 'Failed to load mentor',
-          notifications: res.unreadNotifications
+          error: 'Failed to load mentor'
         })
       }
     } else {
@@ -162,8 +166,7 @@ router.get('/mentor/:mentorRef', async function (req, res, next) {
     res.render('error', {
       title: 'Error',
       authenticated: res.authenticated,
-      error: err.message,
-      notifications: res.unreadNotifications
+      error: err.message
     })
   }
 })
@@ -187,15 +190,13 @@ router.get('/editPost/:language/:postRef', async function (req, res, next) {
           post: post,
           content: post.content,
           mentorRef: post.ref,
-          selectedTab: 'mentors',
-          notifications: res.unreadNotifications
+          selectedTab: 'mentors'
         })
       } else {
         res.render('addPost', {
           title: 'Express',
           authenticated: res.authenticated,
-          error: 'Failed to load mentor',
-          notifications: res.unreadNotifications
+          error: 'Failed to load mentor'
         })
       }
     } else {
@@ -206,8 +207,7 @@ router.get('/editPost/:language/:postRef', async function (req, res, next) {
     res.render('error', {
       title: 'Error',
       authenticated: res.authenticated,
-      error: err.message,
-      notifications: res.unreadNotifications
+      error: err.message
     })
   }
 })
@@ -227,15 +227,13 @@ router.get('/edit/:mentorRef', async function (req, res, next) {
           authenticated: res.authenticated,
           mentorRef: req.params.mentorRef.replace(/\.md$/, ''),
           mentor: mentor,
-          selectedTab: 'mentors',
-          notifications: res.unreadNotifications
+          selectedTab: 'mentors'
         })
       } else {
         res.render('editMentor', {
           title: 'Express',
           authenticated: res.authenticated,
-          error: 'Failed to load mentor',
-          notifications: res.unreadNotifications
+          error: 'Failed to load mentor'
         })
       }
     } else {
@@ -246,8 +244,7 @@ router.get('/edit/:mentorRef', async function (req, res, next) {
     res.render('error', {
       title: 'Error',
       authenticated: res.authenticated,
-      error: err.message,
-      notifications: res.unreadNotifications
+      error: err.message
     })
   }
 })

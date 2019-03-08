@@ -15,6 +15,7 @@ var usersRouter = require('./routes/users')
 var authRouter = require('./routes/auth')
 var formsRouter = require('./routes/forms')
 var trackerRouter = require('./routes/tracker')
+var submissionsRouter = require('./routes/submissions')
 
 var app = express()
 
@@ -39,11 +40,17 @@ app.use(express.urlencoded({ extended: false, limit: '50mb' }))
 app.use(cookieParser())
 app.use(stylus.middleware(path.join(__dirname, 'public')))
 app.use(express.static(path.join(__dirname, 'public')))
-app.use('/+', indexRouter)
+app.use('/', indexRouter)
+app.use('/users', usersRouter)
+app.use('/auth', authRouter)
+app.use('/forms', formsRouter)
+app.use('/track', trackerRouter)
+app.use('/submissions', submissionsRouter)
+/* app.use('/+', indexRouter)
 app.use('/+users', usersRouter)
 app.use('/+auth', authRouter)
 app.use('/+forms', formsRouter)
-app.use('/+track', trackerRouter)
+app.use('/+track', trackerRouter) */
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

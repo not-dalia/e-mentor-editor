@@ -1,11 +1,12 @@
-html, body
-  min-height:100%
+html
+  height:100%
 body
   margin: 0px
+  padding: 0px
   font: 14px "Trebuchet MS", Helvetica, Arial, sans-serif
   display: flex
   flex-direction: column
-  height: 100%
+  min-height: 100%
   overflow-y: auto
   background: #222827
   color: #efefef
@@ -28,25 +29,121 @@ a
 #header
   display:flex
   flex-direction: row
-  padding: 15px 30px 
+  padding: 20px 30px 
   border-bottom: 1px solid #373737
   justify-content: space-between
   align-items: baseline
   .logo
     font-size: 1.6em
-
     a
       text-decoration: none 
       color: #fefefe
       &:hover
         color: darken(#fefefe, 10)
-  .login
+
+  #notification, .login
+    display: inline-block
+    padding: 0 10px
+    cursor pointer
+    margin 0 5px
+
+  #notification
+    font-size: 1.3em
+    position relative
+    color: white
+    &.open:after
+      width: 0; 
+      height: 0; 
+      border-left: 10px solid transparent;
+      border-right: 10px solid transparent;
+      border-bottom: 10px solid white;
+      bottom: -15px;
+      right: 8px;
+      content: "";
+      position absolute
+    &.open
+      #notification-box
+        display block !important
+
+    .after
+      position absolute
+      top -3px
+      right 5px
+      height 14px
+      width 14px
+      border-radius 20px
+      background crimson 
+      content: "1"
+      font-size: 0.5em
+      color: white
+      text-align: center
+      line-height: 14px
+      font-family: Arial, Helvetica, sans-serif
+    #notification-box
+      display none
+      position: absolute
+      cursor: default
+      width: 200px;
+      top 35px
+      right -50px
+      font-size: 0.8em
+      background: #ffffff
+      color: #111
+      padding: 5px
+      border-radius: 10px
+      z-index: 10
+      .row
+        padding: 10px
+        background #e3e3e3
+        border-radius: 8px
+        border 1px solid #d8d8d8
+        text-align: center
+        text-decoration: underline;
+        color: crimson;
+        cursor pointer
+        a
+          display: block
+
+  .user-controls
     display: block
+
+#content
+  flex: 1
+  display flex
+  flex-direction: row
+  flex-wrap: wrap
+
+#sidebar
+  width 220px
+  min-width 100px
+  display: flex
+  // border-right: 1px solid #884039
+  background: #171d1b
+  flex-direction: column
+  flex-grow: 1;
+
+  .sidebar-row
+    padding: 20px 
+    text-decoration: none
+    display: block
+    border-bottom: 1px solid #222827
+    position relative
+    &:hover
+      background: #dc4f43
+      color: white
+    &.selected
+      border-left: 10px solid #dc4f43
+      background: #222827
+      color white
+
+
 
 #main
   flex: 1
   padding: 10px 30px
-
+  min-width: 300px;
+  flex-grow: 9999;
+  flex-basis: 20em;
   #error-bar
     .error
       padding: 10px;
@@ -289,5 +386,88 @@ a
           &:hover
             color: #666
 
+  table.submissions-list
+    border-collapse: collapse
+    width: 100%
+    color: #555
+    table-layout:fixed;
+    thead
+      background #f96a59
+      color: white
+      text-transform: uppercase
+      font-size: 0.9em
+      font-weight: normal
+
+    tr
+      padding: 10px 15px;
+      border-bottom: 1px solid #eee;  
+    td 
+      padding 18px 5px
+      word-break: break-word
+    td.status
+      width: 20px
+    tbody
+      .mentor-name
+        text-transform: capitalize
+      .time
+        font-size: 0.85em
+        color: #888
+    td.type
+      a
+        color: #555
+        text-decoration: none
+    td.status
+      .not-seen
+        margin-left: 5px;
+        width: 8px
+        height: 8px  
+        border-radius: 10px
+        display: inline-block
+        background: crimson
+
+    #type-filter
+      position relative
+      text-decoration: underline
+      cursor pointer
+      display inline-block
+
+      #type-dropdown
+        display none
+        position absolute
+        top: 30px
+        left: 0px
+        background: #dc4f43
+        border: lighten(#dc4f43, 30)
+        color: white
+        width: 160px
+        font-size: 0.9em
+        div
+          padding: 10px
+          border-bottom: 1px solid lighten(#dc4f43, 15)
+          cursor pointer
+          &:hover
+            background-color: darken(#dc4f43, 10)
+    
+    #type-filter.open
+      #type-dropdown
+        display block
+
+  table#submissions-list
+    tr.submission-row
+      cursor pointer
+      &:hover
+        background: #eee
+
+  table#submission-item
+    margin-bottom: 20px
+    thead
+      td
+        padding-left: 15px
+    tbody
+      td:nth-child(1)
+        color: #333;
+        text-transform: uppercase;
+        padding-left: 15px
+        max-width: 150px
 #footer
   padding: 10px   

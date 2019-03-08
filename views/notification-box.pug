@@ -1,0 +1,7 @@
+#notification-box
+  .row You have #{( notifications == 0 ? 'no' : notifications)} new #{ (notifications == 1 ? 'notification' :( 'notifications')) }
+
+script.
+  $('#notification-box .row').click(function(e){
+    window.location.href='submissions/'
+  });

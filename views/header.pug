@@ -1,7 +1,13 @@
 #header
     .logo
         a(href=baseUrl).logo-text= appName +  " Editor"
-    if !authenticated
-        a.login(href="auth/login") Login
-    else 
-        a.login(href="auth/logout") Logout
+    .user-controls
+        if !authenticated
+            a.login(href="auth/login") Login
+        else 
+            a#notification
+                i.fas.fa-bell
+                if !!notifications
+                    .after= notifications
+                include notification-box
+            a.login(href="auth/logout") Logout
