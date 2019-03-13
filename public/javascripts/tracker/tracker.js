@@ -210,7 +210,7 @@ var tracker = new function () {
     params.push('l=' + _this.pageData.language)
     params.push('rf=' + encodeURIComponent(document.referrer))
 
-    pixel.setAttribute('src', 'http://localhost:3000/track/pixel?' + params.join('&'));
+    pixel.setAttribute('src', 'https://openlab.ncl.ac.uk/dokku/mentoring-editor/track/pixel?' + params.join('&'));
     pixel.setAttribute('height', '1');
     pixel.setAttribute('width', '1');
     pixel.setAttribute('class', '_qtpx');

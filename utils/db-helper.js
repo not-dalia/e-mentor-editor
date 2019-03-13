@@ -95,8 +95,18 @@ class DbHelper {
     return this.execQuery(sqlQuery, [submissionId, 'recommend-mentor'], logger.forms)
   }
 
+  getSubmissionTrackingData (actionId) {
+    let sqlQuery = 'SELECT `action`.*, t.visitor_id, t.session_id FROM (SELECT * FROM qudwa.action WHERE action_id = ?) AS T LEFT JOIN `action` ON t.session_id = `action`.session_id AND t.visitor_id = `action`.visitor_id AND `action`.`timestamp` <= t.`timestamp` ORDER BY timestamp DESC;'
+    return this.execQuery(sqlQuery, [actionId], logger.forms)
+  }
+
+  getVisitorOverallInfo (visitorId) {
+    let sqlQuery = "SELECT COUNT(DISTINCT (action_id)) as actions, COUNT(DISTINCT (session_id)) as sessions, form_submissions, MIN(timestamp) as timestamp FROM qudwa.action JOIN (SELECT visitor_id, COUNT(*) AS form_submissions, action_type FROM qudwa.action WHERE action_type = 'form' GROUP BY visitor_id , action_type) AS n ON n.visitor_id = action.visitor_id WHERE action.visitor_id = ?;"
+    return this.execQuery(sqlQuery, [visitorId], logger.forms)
+  }
+
   markSubmissionAsSeen (metadataId) {
-    let sqlQuery = 'UPDATE request_metadata SET is_seen = TRUE WHERE metadata_id = ?'
+    let sqlQuery = 'UPDATE request_metadata SET is_seen = 1 WHERE metadata_id = ?'
     return this.execQuery(sqlQuery, [metadataId], logger.forms)
   }
 
@@ -138,13 +148,33 @@ class DbHelper {
     return this.execQuery(sqlQuery, values, logger.forms)
   }
 
-  /**
+  /*
    *   _____ ____      _    ____ _  _______ ____
    *  |_   _|  _ \    / \  / ___| |/ / ____|  _ \
    *    | | | |_) |  / _ \| |   | ' /|  _| | |_) |
    *    | | |  _ <  / ___ \ |___| . \| |___|  _ <
    *    |_| |_| \_\/_/   \_\____|_|\_\_____|_| \_\
    */
+
+  getAllActions (start, end) {
+    let sqlQuery = 'SELECT action.*, session_count, page_count, first_visit FROM qudwa.action LEFT JOIN qudwa.visitor ON action.visitor_id = visitor.visitor_id WHERE timestamp <= ? AND timestamp >= ? ORDER BY timestamp DESC;'
+    return this.execQuery(sqlQuery, [end, start], logger.tracking)
+  }
+
+  getActionsByVisitorId (visitorId, start, end) {
+    let sqlQuery = 'SELECT action.*, session_count, page_count, first_visit FROM qudwa.action LEFT JOIN qudwa.visitor ON action.visitor_id = visitor.visitor_id WHERE action.visitor_id = ? AND timestamp <= ? AND timestamp >= ? ORDER BY timestamp DESC;'
+    return this.execQuery(sqlQuery, [visitorId, end, start], logger.tracking)
+  }
+
+  getActionsWithTime (start, end) {
+    let sqlQuery = 'SELECT count(*) as c , date(timestamp) AS d FROM qudwa.action WHERE timestamp <= ? AND timestamp >= ? GROUP BY d ORDER BY d DESC;'
+    return this.execQuery(sqlQuery, [end, start], logger.tracking)
+  }
+
+  getVisitorsWithTime (start, end) {
+    let sqlQuery = 'SELECT count(*) as c, d FROM (SELECT visitor_id, date(timestamp) as d FROM qudwa.action WHERE timestamp <= ? AND timestamp >= ? group by d, visitor_id order by d desc, visitor_id) as t group by d order by d desc;'
+    return this.execQuery(sqlQuery, [end, start], logger.tracking)
+  }
 
   getVisitorById (uid) {
     let sqlQuery = 'SELECT * FROM visitor WHERE visitor_id = ?'

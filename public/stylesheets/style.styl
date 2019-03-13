@@ -144,6 +144,7 @@ a
   min-width: 300px;
   flex-grow: 9999;
   flex-basis: 20em;
+  display: table
   #error-bar
     .error
       padding: 10px;
@@ -390,7 +391,7 @@ a
     border-collapse: collapse
     width: 100%
     color: #555
-    table-layout:fixed;
+    // table-layout:fixed;
     thead
       background #f96a59
       color: white
@@ -452,7 +453,7 @@ a
       #type-dropdown
         display block
 
-  table#submissions-list
+  table#submissions-list      
     tr.submission-row
       cursor pointer
       &:hover
@@ -463,11 +464,58 @@ a
     thead
       td
         padding-left: 15px
+        text-align: left
     tbody
       td:nth-child(1)
         color: #333;
         text-transform: uppercase;
         padding-left: 15px
         max-width: 150px
+
+  table#analytics
+    table-layout: fixed
+    td
+      text-align: center !important;
+    .top-list
+      padding 4px
+      text-transform: capitalize
+    .selected
+      color: #666666
+      text-decoration: none
+
+  #tracking-table
+    .action-description
+      text-transform: capitalize
+    .time
+      font-size: 0.8em
+      color: #999 !important
+      padding-right: 20px
+      word-break: keep-all !important
+    .highlight
+      background: lighten(salmon, 25);
+      color: darken(darksalmon, 15)
+      padding: 2px 2px;
+  #session-info-table table
+    tbody td, thead tr:nth-child(2) td
+      text-align: center;
 #footer
   padding: 10px   
+
+.capitalize
+  text-transform: capitalize;
+
+.block
+  display block
+  padding: 2px 0
+
+@keyframes myfirst
+{
+    0%      {background:red;}
+    25%     {background:yellow;}
+    75%     {background:yellow;}
+    100%    {background:red;}
+}
+
+.prev-action {
+    animation: myfirst 2s 1;
+}

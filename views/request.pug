@@ -25,24 +25,27 @@ block content
     .mentor-table
       table.submissions-list#submission-item
         thead
-          td(colspan='2') Metadata
-        if s.request_type
-          tr.submission-row
-            td.title Request Type
-            td= ( s.request_type == 'request-help' ? 'Let Us Help' : (s.request_type == 'request-whatsapp' ? 'Join Whatsapp Group' : (s.request_type == 'request-intro' ? 'Request social media introduction' : 'Request online meeting')))
-        if s.mentor
-          tr.submission-row
-            td.title Mentor
-            td(style='text-transform: capitalize')
-              a(href='mentor/'+s.mentor+'.md')= s.mentor.split('_').join(' ')
-        if s.timestamp
-          tr.submission-row
-            td.title Time received
-            td= moment(s.timestamp).format('DD/MM/YYYY hh:mma')
+          tr
+            td(colspan='100%') Metadata
+          tr
+            if s.request_type
+              td Request Type
+            if s.mentor
+              td Mentor
+            if s.timestamp
+              td Time received
+        tr
+            if s.request_type
+              td= ( s.request_type == 'request-help' ? 'Let Us Help' : (s.request_type == 'request-whatsapp' ? 'Join Whatsapp Group' : (s.request_type == 'request-intro' ? 'Request social media introduction' : 'Request online meeting')))
+            if s.mentor
+              td.capitalize
+                a(href='mentor/'+s.mentor+'.md')= s.mentor.split('_').join(' ')
+            if s.timestamp
+              td.time= moment(s.timestamp).format('DD/MM/YYYY hh:mma')
     .mentor-table
       table.submissions-list#submission-item
         thead
-          td(colspan='2') Sender Information
+          td(colspan='2')= (s.request_type == 'recommend-mentor' ? 'Mentor Information' : 'Sender Information')
         if s.name
           tr.submission-row
             td.title Name
@@ -50,11 +53,20 @@ block content
         if s.email
           tr.submission-row
             td.title Email
-            td= s.email
+            td 
+              a(href='mailto:'+s.email)= s.email
         if s.mobile
           tr.submission-row
             td.title Mobile number
             td= s.mobile
+        if s.social_profiles && JSON.parse(s.social_profiles) && JSON.parse(s.social_profiles).length > 0
+          tr.submission-row
+            td.title Social Profiles
+            td
+              each profile, i in JSON.parse(s.social_profiles)
+                .social-profile(style='display: block; padding: 3px 0')
+                  a(href='profile')= profile
+
         if s.dob
           tr.submission-row
             td.title Date of Birth
@@ -79,7 +91,64 @@ block content
           tr.submission-row
             td.title Why would you like to contact this mentor?
             td= s.contact_reason
-          
+    if session 
+      .mentor-table#session-info-table
+        table.submissions-list#submission-item
+          thead
+            tr
+              td(colspan='4') Visitor Information
+            tr
+              td First Visit
+              td Session count
+              td Page count
+              td Form submission count
+          tr
+            td.time= moment(visitor[0].timestamp).format('hh:mma DD/MM/YY')
+            td= visitor[0].sessions
+            td= visitor[0].actions
+            td= visitor[0].form_submissions
+
+
+      .mentor-table#tracking-table
+        table.submissions-list#submission-item
+          thead
+            td(colspan='3') Visitor Path
+          tr
+            td(colspan='3' style='text-align: left; padding: 10px 15px;') 
+                a(href='analytics/visitor-activity/' + session[0].visitor_id style='text-transform: none;  color: #888') View all activity by this visitor  
+          each action in session
+            tr.submission-row.tracking-row.top-row(id=action.action_id)
+              td.time= moment(action.timestamp).format('hh:mma DD/MM ')
+              case action.action_type
+                when 'visit'
+                  td.action-description Visited 
+                    span.highlight= action.action_data.replace(':recommendmentor', '').split(':').join(': ').split('-').join(' ').split('_').join(' ')
+                when 'form'
+                  td.action-description Submitted form 
+                    span.highlight= action.action_data.split(':').join(': ').split('-').join(' ').split('_').join(' ')
+                    if action.extra_data && action.extra_data.mentor
+                      | for 
+                      span.capitalize.highlight #{action.extra_data.mentor.split('_').join(' ')}
+                when 'filter'
+                  if !action.action_data || action.action_data == ''
+                    td.action-description Cleared filters
+                  else 
+                    td.action-desctiption
+                      - var results = action.action_data.split(';')
+                      - var filters = {}
+                      each result in results
+                        - filters[result.split(':')[0]] = result.split(':')[1]
+                      if (filters.tags)
+                        span.tag-filters.block Filtered results by tags: 
+                          span.capitalize.highlight= filters.tags.split(',').join(', ')
+                      if (filters.query)
+                        span.search-filters.block Searched for: 
+                          span.capitalize.highlight= filters.query 
+                        -var extraData = JSON.parse(JSON.parse(action.extra_data))
+                      if (extraData && extraData.results)
+                        span.filter-results.block Got #{extraData.results == 1 ? '1 result' : extraData.results + ' results'} 
+              td.url
+                a(href=action.url)= action.url
 
 
   mixin filterBar

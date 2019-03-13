@@ -152,6 +152,7 @@ a {
   min-width: 300px;
   flex-grow: 9999;
   flex-basis: 20em;
+  display: table;
 }
 #main #error-bar .error {
   padding: 10px;
@@ -539,7 +540,6 @@ a {
   border-collapse: collapse;
   width: 100%;
   color: #555;
-  table-layout: fixed;
 }
 #main table.submissions-list thead {
   background: #f96a59;
@@ -617,6 +617,7 @@ a {
 }
 #main table#submission-item thead td {
   padding-left: 15px;
+  text-align: left;
 }
 #main table#submission-item tbody td:nth-child(1) {
   color: #333;
@@ -624,6 +625,104 @@ a {
   padding-left: 15px;
   max-width: 150px;
 }
+#main table#analytics {
+  table-layout: fixed;
+}
+#main table#analytics td {
+  text-align: center !important;
+}
+#main table#analytics .top-list {
+  padding: 4px;
+  text-transform: capitalize;
+}
+#main table#analytics .selected {
+  color: #666;
+  text-decoration: none;
+}
+#main #tracking-table .action-description {
+  text-transform: capitalize;
+}
+#main #tracking-table .time {
+  font-size: 0.8em;
+  color: #999 !important;
+  padding-right: 20px;
+  word-break: keep-all !important;
+}
+#main #tracking-table .highlight {
+  background: #feefed;
+  color: #de6238;
+  padding: 2px 2px;
+}
+#main #session-info-table table tbody td,
+#main #session-info-table table thead tr:nth-child(2) td {
+  text-align: center;
+}
 #footer {
   padding: 10px;
+}
+.capitalize {
+  text-transform: capitalize;
+}
+.block {
+  display: block;
+  padding: 2px 0;
+}
+.prev-action {
+  animation: myfirst 2s 1;
+}
+@-moz-keyframes myfirst {
+  0% {
+    background: #f00;
+  }
+  25% {
+    background: #ff0;
+  }
+  75% {
+    background: #ff0;
+  }
+  100% {
+    background: #f00;
+  }
+}
+@-webkit-keyframes myfirst {
+  0% {
+    background: #f00;
+  }
+  25% {
+    background: #ff0;
+  }
+  75% {
+    background: #ff0;
+  }
+  100% {
+    background: #f00;
+  }
+}
+@-o-keyframes myfirst {
+  0% {
+    background: #f00;
+  }
+  25% {
+    background: #ff0;
+  }
+  75% {
+    background: #ff0;
+  }
+  100% {
+    background: #f00;
+  }
+}
+@keyframes myfirst {
+  0% {
+    background: #f00;
+  }
+  25% {
+    background: #ff0;
+  }
+  75% {
+    background: #ff0;
+  }
+  100% {
+    background: #f00;
+  }
 }
