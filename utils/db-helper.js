@@ -4,16 +4,10 @@ const logger = require('../utils/logger')
 
 class DbHelper {
   constructor () {
-    this.isPortCheckReady = true
     this.initDatabase()
   }
 
   async initDatabase () {
-    this.isPortCheckReady = false
-    // this.port = await getPort()
-    this.portCheckTimer = setTimeout(() => {
-      this.isPortCheckReady = true
-    }, 5 * 60000)
     this.pool = mysql.createPool({
       host: process.env.DB_HOST,
       user: process.env.DB_USER_NAME,
@@ -31,26 +25,11 @@ class DbHelper {
       this.pool.getConnection((err, connection) => {
         if (err) {
           logger.error(err)
-          if (err.code === 'ECONNREFUSED' && this.isPortCheckReady) {
-            this.pool.end(async (error) => {
-              if (error) {
-                logger.error(error)
-                logger.info({
-                  sqlQuery,
-                  queryArgs
-                })
-                reject(new Error(err))
-              }
-              await this.initDatabase()
-              resolve(this.execQuery(sqlQuery, queryArgs))
-            })
-          } else {
-            logger.info({
-              sqlQuery,
-              queryArgs
-            })
-            reject(new Error(err))
-          }
+          logger.info({
+            sqlQuery,
+            queryArgs
+          })
+          reject(new Error(err))
           return
         }
         connection.query(sqlQuery, queryArgs, function (err, results) {
