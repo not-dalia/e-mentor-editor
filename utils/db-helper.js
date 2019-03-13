@@ -55,7 +55,7 @@ class DbHelper {
   }
 
   getUnreadSubmissionsCount () {
-    let sqlQuery = 'SELECT count(*) AS c FROM connection_Request_metadata WHERE is_seen=FALSE'
+    let sqlQuery = 'SELECT count(*) AS c FROM connection_request_metadata WHERE is_seen=FALSE'
     return this.execQuery(sqlQuery, null, logger.forms)
   }
 
