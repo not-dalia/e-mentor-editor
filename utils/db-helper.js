@@ -75,7 +75,7 @@ class DbHelper {
   }
 
   getSubmissionTrackingData (actionId) {
-    let sqlQuery = 'SELECT `action`.*, t.visitor_id, t.session_id FROM (SELECT * FROM qudwa.action WHERE action_id = ?) AS T LEFT JOIN `action` ON t.session_id = `action`.session_id AND t.visitor_id = `action`.visitor_id AND `action`.`timestamp` <= t.`timestamp` ORDER BY timestamp DESC;'
+    let sqlQuery = 'SELECT `action`.*, t.visitor_id, t.session_id FROM (SELECT * FROM qudwa.action WHERE action_id = ?) AS t LEFT JOIN `action` ON t.session_id = `action`.session_id AND t.visitor_id = `action`.visitor_id AND `action`.`timestamp` <= t.`timestamp` ORDER BY timestamp DESC;'
     return this.execQuery(sqlQuery, [actionId], logger.forms)
   }
 
