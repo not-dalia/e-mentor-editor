@@ -23,7 +23,7 @@ router.get('/', async function (req, res, next) {
       let selected = 'year'
       switch (req.query.time) {
         case 'today':
-          startDate = moment().subtract(1, 'days').startOf('day').format('YYYY/MM/DD HH:mm:ss')
+          startDate = moment().startOf('day').format('YYYY/MM/DD HH:mm:ss')
           selected = 'today'
           break
         case 'week':
@@ -155,7 +155,7 @@ router.get('/visitor-paths/', async function (req, res, next) {
       let selected = 'year'
       switch (req.query.time) {
         case 'today':
-          startDate = moment().subtract(1, 'days').startOf('day').format('YYYY/MM/DD HH:mm:ss')
+          startDate = moment().startOf('day').format('YYYY/MM/DD HH:mm:ss')
           selected = 'today'
           break
         case 'week':
@@ -223,7 +223,7 @@ router.get('/visitor-activity/', async function (req, res, next) {
       let selected = 'year'
       switch (req.query.time) {
         case 'today':
-          startDate = moment().subtract(1, 'days').startOf('day').format('YYYY/MM/DD HH:mm:ss')
+          startDate = moment().startOf('day').format('YYYY/MM/DD HH:mm:ss')
           selected = 'today'
           break
         case 'week':
@@ -291,7 +291,7 @@ router.get('/visitor-activity/:id', async function (req, res, next) {
       let selected = 'year'
       switch (req.query.time) {
         case 'today':
-          startDate = moment().subtract(1, 'days').startOf('day').format('YYYY/MM/DD HH:mm:ss')
+          startDate = moment().startOf('day').format('YYYY/MM/DD HH:mm:ss')
           selected = 'today'
           break
         case 'week':
