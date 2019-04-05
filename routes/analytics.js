@@ -47,7 +47,7 @@ router.get('/', async function (req, res, next) {
       let dailyVisitors = await db.getVisitorsWithTime(startDate, endDate)
       let pageCount = allData.length
       let visitors = []
-      let submissions = 0
+      let submissions = await db.getSubmissionsCountByDate(startDate, endDate)
       let topVisitedMentor = {}
       let topSubmittedMentor = {}
       let topTags = {}
@@ -59,7 +59,6 @@ router.get('/', async function (req, res, next) {
         let extraData = JSON.parse(JSON.parse(el.extra_data))
         if (visitors.indexOf(el.visitor_id) < 0) visitors.push(el.visitor_id)
         if (el.action_type === 'form') {
-          submissions++
           if (extraData.mentor && !topSubmittedMentor[extraData.mentor]) {
             topSubmittedMentor[extraData.mentor] = 1
           } else if (extraData.mentor) {
@@ -122,7 +121,7 @@ router.get('/', async function (req, res, next) {
         selected: selected,
         totalActions: pageCount,
         totalVisitors: visitors.length,
-        totalSubmissions: submissions,
+        totalSubmissions: submissions[0] ? submissions[0].c : 0,
         topTags: topTagsSorted.slice(0, 5),
         topSearches: topSearchesSorted.slice(0, 5),
         topVisitedMentor: topVisitedMentorSorted.slice(0, 5),

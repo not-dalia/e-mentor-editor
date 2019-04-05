@@ -59,6 +59,11 @@ class DbHelper {
     return this.execQuery(sqlQuery, null, logger.forms)
   }
 
+  getSubmissionsCountByDate (start, end) {
+    let sqlQuery = 'SELECT count(*) AS c FROM request_metadata WHERE timestamp <= ? AND timestamp >= ?'
+    return this.execQuery(sqlQuery, [end, start], logger.tracking)
+  }
+
   getSubmissionsByType (type) {
     let sqlQuery = 'SELECT * FROM connection_request WHERE type=? ORDER BY `timestamp` DESC'
     return this.execQuery(sqlQuery, [type], logger.forms)
