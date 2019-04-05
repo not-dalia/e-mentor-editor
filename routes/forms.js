@@ -6,7 +6,7 @@ const cors = require('cors')
 
 router.use(cors({
   credentials: true,
-  origin: ['https://not-dalia.github.io', 'http://not-dalia.github.io'],
+  origin: ['https://not-dalia.github.io', 'http://not-dalia.github.io', 'https://qudwa.me', 'http://qudwa.me', 'https://www.qudwa.me', 'http://www.qudwa.me'],
   methods: ['GET', 'PUT', 'POST', 'DELETE', 'OPTIONS'],
   headers: ['X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version']
 }))
