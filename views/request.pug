@@ -65,7 +65,7 @@ block content
             td
               each profile, i in JSON.parse(s.social_profiles)
                 .social-profile(style='display: block; padding: 3px 0')
-                  a(href='profile')= profile
+                  a(href=profile)= profile
 
         if s.dob
           tr.submission-row
