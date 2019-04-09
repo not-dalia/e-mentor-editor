@@ -2,6 +2,8 @@ var express = require('express')
 var router = express.Router()
 var qs = require('querystring')
 var https = require('https')
+var createError = require('http-errors')
+var { getUserRepos } = require('../utils/auth-helper')
 
 router.get('/login/', function (req, res) {
   res.redirect(
@@ -11,24 +13,33 @@ router.get('/login/', function (req, res) {
   )
 })
 
-router.get('/oauth/', function (req, res) {
+router.get('/oauth/', function (req, res, next) {
   console.log('authenticating code:', req.query.code, true)
   authenticate(req.query.code, function (err, token) {
     var result
     if (err || !token) {
       result = { error: err || 'bad_code' }
       console.log(result.error)
+      next(createError(401))
     } else {
       result = { token: token }
       console.log('token', result.token, true)
-      req.session.token = result.token
+      getUserRepos(result.token, (err, authorised) => {
+        if (err || !authorised.authorised) {
+          console.log(err)
+          req.session.token = null
+          next(createError(401))
+        } else {
+          req.session.token = result.token
+          res.statusCode = 307
+          res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0')
+          res.header('Pragma', 'no-cache')
+          res.header('Expires', '0')
+          res.header('Surrogate-Control', 'no-store')
+          res.redirect(307, process.env.BASE_URL + 'loggingIn')
+        }
+      })
     }
-    res.statusCode = 307
-    res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0')
-    res.header('Pragma', 'no-cache')
-    res.header('Expires', '0')
-    res.header('Surrogate-Control', 'no-store')
-    res.redirect(307, process.env.BASE_URL + 'loggingIn')
   })
 })
 
@@ -39,7 +50,7 @@ router.get('/logout/', function (req, res) {
   res.redirect(process.env.BASE_URL)
 })
 
-router.get('/authenticate/', function (req, res) {
+router.get('/authenticate/', function (req, res, next) {
   console.log('authenticating code:', req.query.code, true)
   authenticate(req.query.code, function (err, token) {
     var result
@@ -49,7 +60,21 @@ router.get('/authenticate/', function (req, res) {
     } else {
       result = { token: token }
       console.log('token', result.token, true)
-      req.session.token = result.token
+      getUserRepos(result.token, (err, authorised) => {
+        if (err || !authorised.authorised) {
+          console.log(err)
+          req.session.token = null
+          next(createError(401))
+        } else {
+          req.session.token = result.token
+          res.statusCode = 307
+          res.header('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0')
+          res.header('Pragma', 'no-cache')
+          res.header('Expires', '0')
+          res.header('Surrogate-Control', 'no-store')
+          res.redirect(307, '/loggingIn')
+        }
+      })
     }
     res.json(result)
   })

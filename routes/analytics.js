@@ -2,17 +2,8 @@ var express = require('express')
 var router = express.Router()
 let db = require('../utils/db-helper')
 let moment = require('moment')
+var { authUser } = require('../utils/auth-helper')
 
-const authUser = async function (req, res, next) {
-  if (!req.session.token) {
-    res.authenticated = false
-  } else {
-    res.authenticated = true
-    let notifications = await db.getUnreadSubmissionsCount()
-    res.unreadNotifications = notifications[0] ? notifications[0].c : 0
-  }
-  next()
-}
 router.use(authUser)
 
 /* GET home page. */

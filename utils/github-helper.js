@@ -1,14 +1,14 @@
-var https = require("https"),
-  fs = require("fs"),
-  yaml = require("js-yaml");
-var withCatch = require("../utils/withCatch");
+var https = require('https')
+var fs = require('fs')
+var yaml = require('js-yaml')
+var withCatch = require('../utils/withCatch')
 
-let GitHub = require("github-api");
-let gh, repo;
+let GitHub = require('github-api')
+let gh, repo
 
 class GithubHelper {
-  constructor() {
-    this.config = this._loadConfig();
+  constructor () {
+    this.config = this._loadConfig()
   }
   /**
    *
@@ -18,153 +18,153 @@ class GithubHelper {
    *
    * @memberOf GithubHelper
    */
-  async create(token) {
-    if (!token) return { error: "Missing Github token" };
-    const o = new GithubHelperObj(token, this.config);
-    await o.initialize();
-    return o;
+  async create (token) {
+    if (!token) return { error: 'Missing Github token' }
+    const o = new GithubHelperObj(token, this.config)
+    await o.initialize()
+    return o
   }
 
-  _loadConfig() {
+  _loadConfig () {
     try {
-      var doc = yaml.safeLoad(fs.readFileSync("./config.yml", "utf-8"));
-      console.log(doc);
-      return doc;
+      var doc = yaml.safeLoad(fs.readFileSync('./config.yml', 'utf-8'))
+      console.log(doc)
+      return doc
     } catch (e) {
-      console.log(e);
-      return null;
+      console.log(e)
+      return null
     }
   }
 }
 
 class GithubHelperObj {
-  constructor(token, config) {
-    this.config = config;
-    this.token = token;
+  constructor (token, config) {
+    this.config = config
+    this.token = token
     if (token) {
       this.gh = new GitHub({
         token: this.token
-      });
+      })
     }
   }
 
-  async initialize() {
+  async initialize () {
     this.repo = await this.gh.getRepo(
       this.config.owner,
       this.config.repo,
       false
-    );
-    if (this.repo.error) return { error: "Could not load repository." };
-    let editorConf = await withCatch(this._loadFile(this.config.editorConf));
-    if (editorConf.err) return { error: editorConf.err };
+    )
+    if (this.repo.error) return { error: 'Could not load repository.' }
+    let editorConf = await withCatch(this._loadFile(this.config.editorConf))
+    if (editorConf.err) return { error: editorConf.err }
 
-    let fileContent = Buffer.from(editorConf.data.content, "base64").toString(
-      "utf8"
-    );
-    this.editorConfig = yaml.safeLoad(fileContent);
+    let fileContent = Buffer.from(editorConf.data.content, 'base64').toString(
+      'utf8'
+    )
+    this.editorConfig = yaml.safeLoad(fileContent)
   }
 
-  async setToken(token) {
-    this.token = token;
+  async setToken (token) {
+    this.token = token
     this.gh = new GitHub({
       token: this.token
-    });
-    await this.initialize();
-    return { error: null };
+    })
+    await this.initialize()
+    return { error: null }
   }
 
-  writeFile(path, content, commit, sha) {
+  writeFile (path, content, commit, sha) {
     return new Promise((resolve, reject) => {
       var dataObj = {
         message: commit,
         content: content,
         branch: this.config.branch
-      };
+      }
 
-      if (sha) dataObj.sha = sha;
+      if (sha) dataObj.sha = sha
 
-      var data = JSON.stringify(dataObj);
+      var data = JSON.stringify(dataObj)
 
       var reqOptions = {
-        host: "api.github.com",
+        host: 'api.github.com',
         path: `/repos/${this.config.owner}/${
           this.config.repo
         }/contents/${path}`,
-        method: "PUT",
+        method: 'PUT',
         headers: {
-          "Content-Length": Buffer.byteLength(data),
-          "Content-Type": "application/json",
-          "User-Agent": "not-dalia",
+          'Content-Length': Buffer.byteLength(data),
+          'Content-Type': 'application/json',
+          'User-Agent': 'not-dalia',
           Authorization: `token ${this.token}`
         }
-      };
+      }
 
-      var body = "";
-      var req = https.request(reqOptions, function(res) {
-        res.setEncoding("utf8");
-        res.on("data", function(chunk) {
-          body += chunk;
-        });
-        res.on("end", function() {
-          resolve(JSON.parse(body));
-        });
-      });
+      var body = ''
+      var req = https.request(reqOptions, function (res) {
+        res.setEncoding('utf8')
+        res.on('data', function (chunk) {
+          body += chunk
+        })
+        res.on('end', function () {
+          resolve(JSON.parse(body))
+        })
+      })
 
-      req.write(data);
-      req.end();
-      req.on("error", function(e) {
-        reject(e.message);
-      });
-    });
+      req.write(data)
+      req.end()
+      req.on('error', function (e) {
+        reject(e.message)
+      })
+    })
   }
 
-  deleteFile(path, commit, sha) {
+  deleteFile (path, commit, sha) {
     return new Promise((resolve, reject) => {
       var dataObj = {
         message: commit,
         branch: this.config.branch,
         sha: sha
-      };
+      }
 
-      var data = JSON.stringify(dataObj);
+      var data = JSON.stringify(dataObj)
 
       var reqOptions = {
-        host: "api.github.com",
+        host: 'api.github.com',
         path: `/repos/${this.config.owner}/${
           this.config.repo
         }/contents/${path}`,
-        method: "DELETE",
+        method: 'DELETE',
         headers: {
-          "Content-Length": Buffer.byteLength(data),
-          "Content-Type": "application/json",
-          "User-Agent": "not-dalia",
+          'Content-Length': Buffer.byteLength(data),
+          'Content-Type': 'application/json',
+          'User-Agent': 'not-dalia',
           Authorization: `token ${this.token}`
         }
-      };
+      }
 
-      var body = "";
-      var req = https.request(reqOptions, function(res) {
-        res.setEncoding("utf8");
-        res.on("data", function(chunk) {
-          body += chunk;
-        });
-        res.on("end", function() {
-          resolve(JSON.parse(body));
-        });
-      });
+      var body = ''
+      var req = https.request(reqOptions, function (res) {
+        res.setEncoding('utf8')
+        res.on('data', function (chunk) {
+          body += chunk
+        })
+        res.on('end', function () {
+          resolve(JSON.parse(body))
+        })
+      })
 
-      req.write(data);
-      req.end();
-      req.on("error", function(e) {
-        reject(e.message);
-      });
-    });
+      req.write(data)
+      req.end()
+      req.on('error', function (e) {
+        reject(e.message)
+      })
+    })
   }
 
-  async getMentors() {
+  async getMentors () {
     return new Promise((resolve, reject) => {
-      let mentorRefs = [];
-      let promises = [];
+      let mentorRefs = []
+      let promises = []
       for (let lang in this.editorConfig.languages) {
         promises.push(
           this.repo.getContents(
@@ -174,26 +174,28 @@ class GithubHelperObj {
             }`,
             false
           )
-        );
+        )
       }
       Promise.all(promises)
         .then(values => {
           for (let v in values) {
-            let mentors = values[v];
+            let mentors = values[v]
+            // eslint-disable-next-line eqeqeq
             if (mentors.error || mentors.status != 200) {
-              resolve({ error: "failed to get content" });
+              resolve({ error: 'failed to get content' })
             }
             for (let item in mentors.data) {
-              let mentorRef = mentors.data[item].name;
-              if (mentorRefs.indexOf(mentorRef) < 0) mentorRefs.push(mentorRef);
+              let mentorRef = mentors.data[item].name
+              if (mentorRefs.indexOf(mentorRef) < 0) mentorRefs.push(mentorRef)
             }
           }
-          resolve(mentorRefs);
+          resolve(mentorRefs)
         })
         .catch(err => {
-          resolve({ error: "failed to get content" });
-        });
-    });
+          console.log(err)
+          resolve({ error: 'failed to get content' })
+        })
+    })
 
     // for (let lang in this.editorConfig.languages) {
     //   let mentors = await this.repo.getContents(
@@ -213,10 +215,10 @@ class GithubHelperObj {
     // }
   }
 
-  async getMentorPosts(mentorRef) {
+  async getMentorPosts (mentorRef) {
     return new Promise((resolve, reject) => {
-      let postFiles = [];
-      let promises = [];
+      let postFiles = []
+      let promises = []
       for (let lang in this.editorConfig.languages) {
         promises.push(
           this.repo.getContents(
@@ -226,15 +228,16 @@ class GithubHelperObj {
             }`,
             false
           )
-        );
+        )
       }
-      let innerPromises = [];
+      let innerPromises = []
       Promise.all(promises)
         .then(values => {
           for (let v in values) {
-            let posts = values[v];
+            let posts = values[v]
+            // eslint-disable-next-line eqeqeq
             if (posts.error || posts.status != 200) {
-              resolve({ error: "failed to get content" });
+              resolve({ error: 'failed to get content' })
             }
             for (let item in posts.data) {
               innerPromises.push(
@@ -243,7 +246,7 @@ class GithubHelperObj {
                   posts.data[item].path,
                   false
                 )
-              );
+              )
             }
           }
         })
@@ -251,17 +254,17 @@ class GithubHelperObj {
           Promise.all(innerPromises)
             .then(innerValues => {
               for (let nv in innerValues) {
-                let postContent = innerValues[nv];
+                let postContent = innerValues[nv]
                 let fileContent = Buffer.from(
                   postContent.data.content,
-                  "base64"
+                  'base64'
                 )
-                  .toString("utf8")
-                  .split("---");
-                if (fileContent.length < 3)
-                  resolve({ error: "failed to read content" });
-                let frontMatter = yaml.safeLoad(fileContent[1]);
-                if (frontMatter.ref != mentorRef) continue;
+                  .toString('utf8')
+                  .split('---')
+                if (fileContent.length < 3) { resolve({ error: 'failed to read content' }) }
+                let frontMatter = yaml.safeLoad(fileContent[1])
+                // eslint-disable-next-line eqeqeq
+                if (frontMatter.ref != mentorRef) continue
                 let postFile = {
                   fileName: postContent.data.name,
                   lang: frontMatter.lang,
@@ -270,37 +273,39 @@ class GithubHelperObj {
                   ref: frontMatter.ref,
                   langName: this.findLanguage(frontMatter.lang, 'name'),
                   sha: postContent.data.sha
-                };
-                postFiles.push(postFile);
+                }
+                postFiles.push(postFile)
               }
-              resolve(postFiles);
+              resolve(postFiles)
             })
             .catch(innerErr => {
-              resolve({ error: "failed to get content" });
-            });
+              resolve({ error: 'failed to get content' })
+            })
         })
         .catch(err => {
-          resolve({ error: "failed to get content" });
-        });
-    });
-  }
-  
-  findLanguage(known, wanted){
-    let found;
-    let knownKey = wanted=='key'?'name':'key';
-    for(let lang in this.editorConfig.languages){
-      if (this.editorConfig.languages[lang][knownKey] == known){
-        found = this.editorConfig.languages[lang][wanted];
-        break;
-      }
-    }
-    return found;
+          console.log(err)
+          resolve({ error: 'failed to get content' })
+        })
+    })
   }
 
-  async getMentorDataForEditing(mentorRef) {
+  findLanguage (known, wanted) {
+    let found
+    let knownKey = wanted == 'key' ? 'name' : 'key'
+    for (let lang in this.editorConfig.languages) {
+      // eslint-disable-next-line eqeqeq
+      if (this.editorConfig.languages[lang][knownKey] == known) {
+        found = this.editorConfig.languages[lang][wanted]
+        break
+      }
+    }
+    return found
+  }
+
+  async getMentorDataForEditing (mentorRef) {
     try {
-      let mentorFiles = [];
-      if (!this.editorConfig) throw new Error("Editor config is missing");
+      let mentorFiles = []
+      if (!this.editorConfig) throw new Error('Editor config is missing')
       for (let lang in this.editorConfig.languages) {
         let mentor = await withCatch(
           this.repo.getContents(
@@ -310,76 +315,76 @@ class GithubHelperObj {
             }/${mentorRef}.md`,
             false
           )
-        );
+        )
         if (mentor.err || mentor.data.error || mentor.data.status != 200) {
-          //TODO: create new mentor
+          // TODO: create new mentor
           mentorFiles.push({
             language: this.editorConfig.languages[lang],
             create: true,
             content: {
               ref: mentorRef
             }
-          });
-          continue;
+          })
+          continue
           // throw new Error('mentor deos not exist');
         }
-        let fileContent = Buffer.from(mentor.data.data.content, "base64")
-          .toString("utf8")
-          .split("---");
-        if (fileContent.length < 3) return { error: "failed to read content" };
-        let mentorContent = yaml.safeLoad(fileContent[1]);
+        let fileContent = Buffer.from(mentor.data.data.content, 'base64')
+          .toString('utf8')
+          .split('---')
+        if (fileContent.length < 3) return { error: 'failed to read content' }
+        let mentorContent = yaml.safeLoad(fileContent[1])
         mentorFiles.push({
           language: this.editorConfig.languages[lang],
           create: false,
           content: mentorContent,
           sha: mentor.data.data.sha
-        });
+        })
       }
-      return mentorFiles;
+      return mentorFiles
     } catch (error) {
-      console.warn(error);
-      return { error };
+      console.warn(error)
+      return { error }
     }
   }
 
-  async getPostDataForEditing(lang, postRef) {
+  async getPostDataForEditing (lang, postRef) {
     try {
-      let postFile = {};
-      if (!this.editorConfig) throw new Error("Editor config is missing");
+      let postFile = {}
+      if (!this.editorConfig) throw new Error('Editor config is missing')
       let post = await withCatch(
         this.repo.getContents(
           this.config.branch,
           `${this.editorConfig.posts}/${lang}/${postRef}.md`,
           false
         )
-      );
+      )
       if (post.err || post.data.error || post.data.status != 200) {
-        //TODO: create new mentor
-        return { error: "Couldn't retrieve the post" };
+        // TODO: create new mentor
+        return { error: "Couldn't retrieve the post" }
       }
-      let fileContent = Buffer.from(post.data.data.content, "base64")
-        .toString("utf8")
-        .split("---");
-      if (fileContent.length < 3) return { error: "failed to read content" };
-      let frontMatter = yaml.safeLoad(fileContent[1]);
+      let fileContent = Buffer.from(post.data.data.content, 'base64')
+        .toString('utf8')
+        .split('---')
+      if (fileContent.length < 3) return { error: 'failed to read content' }
+      let frontMatter = yaml.safeLoad(fileContent[1])
       postFile = {
         ...frontMatter,
         fileName: postRef,
         sha: post.data.data.sha,
         content: fileContent[2]
-      };
+      }
 
-      return postFile;
+      return postFile
     } catch (error) {
-      console.warn(error);
-      return { error };
+      console.warn(error)
+      return { error }
     }
   }
 
-  async saveMedia(textFileData) {
+  async saveMedia (textFileData) {
     try {
-      let failed = [];
-      let fileData = JSON.parse(textFileData);
+      let failed = []
+      let fileData = JSON.parse(textFileData)
       let save = await withCatch(
         this.writeFile(
           `${this.editorConfig.media}/${Date.now()}${encodeURIComponent(
@@ -388,20 +393,20 @@ class GithubHelperObj {
           fileData.content,
           `Uploaded media ${Date.now()}${fileData.fileName}`
         )
-      );
+      )
       if (save.err || save.data.error || !save.data.content) {
-        failed.push(fileData.fileName);
+        failed.push(fileData.fileName)
       }
-      return { failed, imagePath: save.data.content.download_url };
+      return { failed, imagePath: save.data.content.download_url }
     } catch (error) {
-      console.warn(error);
-      return { error };
+      console.warn(error)
+      return { error }
     }
   }
 
-  async saveMentor(mentorRef, mentorData) {
+  async saveMentor (mentorRef, mentorData) {
     try {
-      let failed = [];
+      let failed = []
       for (let i in mentorData) {
         let save = await withCatch(
           this.writeFile(
@@ -412,30 +417,30 @@ class GithubHelperObj {
             `Updated ${mentorRef}`,
             mentorData[i].sha
           )
-        );
+        )
         if (save.err || save.data.error || !save.data.content) {
-          failed.push(mentorData[i].language.name);
-          continue;
+          failed.push(mentorData[i].language.name)
+          continue
           // throw new Error('mentor deos not exist');
         }
       }
-      return { failed };
+      return { failed }
     } catch (error) {
-      console.warn(error);
-      return { error };
+      console.warn(error)
+      return { error }
     }
   }
 
-  async savePost(postData) {
+  async savePost (postData) {
     try {
-      let failed = [];
-      let frontMatter = { ...postData };
-      delete frontMatter.content;
-      delete frontMatter.fileName;
-      delete frontMatter.sha;
+      let failed = []
+      let frontMatter = { ...postData }
+      delete frontMatter.content
+      delete frontMatter.fileName
+      delete frontMatter.sha
       if (!frontMatter.date) {
-        let date = new Date();
-        frontMatter.date = date.toUTCString();
+        let date = new Date()
+        frontMatter.date = date.toUTCString()
       }
       let save = await withCatch(
         this.writeFile(
@@ -448,54 +453,54 @@ class GithubHelperObj {
           `Updated ${postData.fileName}`,
           postData.sha
         )
-      );
+      )
       if (save.err || save.data.error || !save.data.content) {
-        failed.push(postData.lang);
+        failed.push(postData.lang)
         // throw new Error('mentor deos not exist');
       }
 
-      return { failed };
+      return { failed }
     } catch (error) {
-      console.warn(error);
-      return { error };
+      console.warn(error)
+      return { error }
     }
   }
 
-  async deletePost(language, postRef) {
+  async deletePost (language, postRef) {
     try {
-      let failed = [];
-      let postData = await this.getPostDataForEditing(language, postRef);
-      if (postData.error) return { error: postData.error };
+      let failed = []
+      let postData = await this.getPostDataForEditing(language, postRef)
+      if (postData.error) return { error: postData.error }
       let deleteResult = await withCatch(
         this.deleteFile(
           `${this.editorConfig.posts}/${language}/${postRef}.md`,
           `Deleted ${postRef}`,
           postData.sha
         )
-      );
+      )
       if (
         deleteResult.err ||
         deleteResult.data.error ||
         !deleteResult.data.commit
       ) {
-        failed.push(postData.name);
+        failed.push(postData.name)
         // throw new Error('mentor deos not exist');
       }
 
-      return { failed };
+      return { failed }
     } catch (error) {
-      console.warn(error);
-      return { error };
+      console.warn(error)
+      return { error }
     }
   }
 
-  async deleteMentor(mentorRef) {
+  async deleteMentor (mentorRef) {
     try {
-      let failed = [];
-      let mentorData = await this.getMentorDataForEditing(mentorRef);
-      if (mentorData.error) return { error: mentorData.error };
+      let failed = []
+      let mentorData = await this.getMentorDataForEditing(mentorRef)
+      if (mentorData.error) return { error: mentorData.error }
       for (let i in mentorData) {
-        if (mentorData[i].create) continue;
+        if (mentorData[i].create) continue
         let deleteResult = await withCatch(
           this.deleteFile(
             `${this.editorConfig.mentors}/${
@@ -504,28 +509,28 @@ class GithubHelperObj {
             `Deleted ${mentorRef}`,
             mentorData[i].sha
           )
-        );
+        )
         if (
           deleteResult.err ||
           deleteResult.data.error ||
           !deleteResult.data.commit
         ) {
-          failed.push(mentorData[i].language.name);
-          continue;
+          failed.push(mentorData[i].language.name)
+          continue
           // throw new Error('mentor deos not exist');
         }
       }
-      return { failed };
+      return { failed }
     } catch (error) {
-      console.warn(error);
-      return { error };
+      console.warn(error)
+      return { error }
     }
   }
 
-  async _loadFile(path) {
+  async _loadFile (path) {
     return new Promise(async (resolve, reject) => {
       try {
-        this.repo.getContents(this.config.branch, path, false, function(
+        this.repo.getContents(this.config.branch, path, false, function (
           error,
           result,
           raw
@@ -535,23 +540,23 @@ class GithubHelperObj {
             result.error ||
             (result.status && result.status != 200)
           ) {
-            throw new Error("failed to get content");
+            throw new Error('failed to get content')
           }
 
-          resolve(result);
-        });
+          resolve(result)
+        })
       } catch (err) {
-        reject(err);
+        reject(err)
       }
-    });
+    })
   }
 }
 /*********************************************************/
 
 /*********************************************************/
 
-function getBase64(content) {
-  return Buffer.from(content).toString("base64");
+function getBase64 (content) {
+  return Buffer.from(content).toString('base64')
 }
 
-module.exports = GithubHelper;
+module.exports = GithubHelper

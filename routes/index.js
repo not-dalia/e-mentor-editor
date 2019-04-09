@@ -6,16 +6,8 @@ var GithubHelper = require('../utils/github-helper')
 
 let ghHelper = new GithubHelper()
 
-const authUser = async function (req, res, next) {
-  if (!req.session.token) {
-    res.authenticated = false
-  } else {
-    res.authenticated = true
-    let notifications = await db.getUnreadSubmissionsCount()
-    res.unreadNotifications = notifications[0] ? notifications[0].c : 0
-  }
-  next()
-}
+var { authUser } = require('../utils/auth-helper')
+
 router.use(authUser)
 
 router.get('/loggingIn', function (req, res, next) {
