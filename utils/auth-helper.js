@@ -57,6 +57,8 @@ const authUser = async function (req, res, next) {
   } else {
     if (req.session.repoCheckTime && req.session.repoCheckTime > Date.now()) {
       res.authenticated = true
+      let notifications = await db.getUnreadSubmissionsCount()
+      res.unreadNotifications = notifications[0] ? notifications[0].c : 0
       next()
       return
     }
