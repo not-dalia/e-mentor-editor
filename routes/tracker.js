@@ -12,11 +12,11 @@ router.get('/pixel', (req, res) => {
     'Content-Length': trackImg.length
   })
   res.statusCode = 200
+  let referrer = req.get('referrer') + ''
   console.log(req.query)
   res.send(trackImg)
   let whitelistedDomains = [/^https?:\/\/([a-zA-Z\d-]+\.){0,}qudwa\.me/]
   let whitelisted = false
-  let referrer = req.get('referrer')
   whitelistedDomains.forEach(el => {
     if (el.test(referrer)) {
       whitelisted = true
