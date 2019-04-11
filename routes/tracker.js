@@ -22,7 +22,10 @@ router.get('/pixel', (req, res) => {
     }
   })
 
-  if (whitelisted) {
+  if (!whitelisted) {
+    console.log(`Request from ${referrer} not whitelisted`)
+    logger.tracking.error(`Request from ${referrer} not whitelisted`, req.query)
+  } else {
     try {
       let extraData = req.query.ed || {}
       extraData.referrer = req.query.rf
