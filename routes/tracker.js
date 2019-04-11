@@ -24,7 +24,7 @@ router.get('/pixel', (req, res) => {
 
   if (!whitelisted) {
     console.log(`Request from ${referrer} not whitelisted`)
-    logger.tracking.error(`Request from ${referrer} not whitelisted`, req.query)
+    // logger.tracking.error(`Request from ${referrer} not whitelisted`, req.query)
     return
   }
   try {
