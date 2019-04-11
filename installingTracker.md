@@ -5,7 +5,7 @@
 Use the following code:
 
 ```javascript
-var HOST = 'https://openlab.ncl.ac.uk/dokku/mentoring-editor';
+var HOST = 'http://localhost:3000'; // update this to match your host 
 var trackerActions = [];
 function pushAction(action, params){
     if (typeof tracker != 'undefined'){
