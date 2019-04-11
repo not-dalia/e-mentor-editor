@@ -7,10 +7,11 @@ const logger = require('../utils/logger')
 const trackImg = new Buffer('R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7', 'base64');
 
 router.get('/pixel', (req, res) => {
-  res.writeHead(200, {
+  res.set({
     'Content-Type': 'image/gif',
     'Content-Length': trackImg.length
   })
+  res.statusCode = 200
   console.log(req.query)
   res.send(trackImg)
   let whitelistedDomains = [/^https?:\/\/([a-zA-Z\d-]+\.){0,}qudwa\.me/]
