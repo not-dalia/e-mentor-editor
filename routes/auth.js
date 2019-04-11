@@ -45,8 +45,8 @@ router.get('/oauth/', function (req, res, next) {
 
 router.get('/logout/', function (req, res) {
   req.session.token = null
+  req.session.repoCheckTime = null
   res.statusCode = 307
-
   res.redirect(process.env.BASE_URL)
 })
 

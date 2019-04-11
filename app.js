@@ -5,13 +5,11 @@ var cookieParser = require('cookie-parser')
 var logger = require('morgan')
 var stylus = require('stylus')
 var cookieSession = require('cookie-session')
-var fs = require('fs')
-var yaml = require('js-yaml')
+const config = require('./utils/config')
 
 require('dotenv').config()
 
 var indexRouter = require('./routes/index')
-var usersRouter = require('./routes/users')
 var authRouter = require('./routes/auth')
 var formsRouter = require('./routes/forms')
 var trackerRouter = require('./routes/tracker')
@@ -42,7 +40,6 @@ app.use(cookieParser())
 app.use(stylus.middleware(path.join(__dirname, 'public')))
 app.use(express.static(path.join(__dirname, 'public')))
 app.use('/+', indexRouter)
-app.use('/+users', usersRouter)
 app.use('/+auth', authRouter)
 app.use('/+forms', formsRouter)
 app.use('/+track', trackerRouter)
@@ -63,23 +60,11 @@ app.use(function (err, req, res, next) {
   res.render('error')
 })
 
-const config = _loadConfig()
 app.locals = {
   appName: config.appName,
   baseUrl: process.env.HOST + process.env.BASE_URL,
   moment: require('moment')
 
-}
-
-function _loadConfig () {
-  try {
-    var doc = yaml.safeLoad(fs.readFileSync('./config.yml', 'utf-8'))
-    console.log(doc)
-    return doc
-  } catch (e) {
-    console.log(e)
-    return null
-  }
 }
 
 module.exports = app

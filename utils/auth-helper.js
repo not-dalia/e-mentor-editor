@@ -1,13 +1,9 @@
-var yaml = require('js-yaml')
-var fs = require('fs')
+const config = require('../utils/config')
 let db = require('../utils/db-helper')
 var qs = require('querystring')
 var https = require('https')
 
 function getUserRepos (token, cb) {
-  // let gitHub = await ghHelper.create(token)
-  // let repos = await gitHub.
-
   var data = qs.stringify({
   })
 
@@ -28,7 +24,6 @@ function getUserRepos (token, cb) {
     res.on('end', function () {
       let repos = JSON.parse(body)
       let authorised = false
-      let config = _loadConfig()
       if (!config || !config.owner || !config.repo) {
         cb(new Error('Cannot parse config file'))
       }
@@ -75,17 +70,6 @@ const authUser = async function (req, res, next) {
       }
       next()
     })
-  }
-}
-
-function _loadConfig () {
-  try {
-    var doc = yaml.safeLoad(fs.readFileSync('./config.yml', 'utf-8'))
-    console.log(doc)
-    return doc
-  } catch (e) {
-    console.log(e)
-    return null
   }
 }
 

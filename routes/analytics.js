@@ -10,28 +10,7 @@ router.use(authUser)
 router.get('/', async function (req, res, next) {
   try {
     if (res.authenticated) {
-      let startDate = moment().subtract(1, 'years').startOf('day').format('YYYY/MM/DD HH:mm:ss')
-      let selected = 'year'
-      switch (req.query.time) {
-        case 'today':
-          startDate = moment().startOf('day').format('YYYY/MM/DD HH:mm:ss')
-          selected = 'today'
-          break
-        case 'week':
-          startDate = moment().subtract(1, 'weeks').startOf('day').format('YYYY/MM/DD HH:mm:ss')
-          selected = 'week'
-          break
-        case 'month':
-          startDate = moment().subtract(1, 'months').startOf('day').format('YYYY/MM/DD HH:mm:ss')
-          selected = 'month'
-          break
-        case 'year':
-          startDate = moment().subtract(1, 'years').startOf('day').format('YYYY/MM/DD HH:mm:ss')
-          selected = 'year'
-          break
-      }
-
-      let endDate = moment().endOf('day').format('YYYY/MM/DD HH:mm:ss')
+      let { startDate, endDate, selected } = getTimePeriod(req.query.time)
 
       let allData = await db.getAllActions(startDate, endDate)
       let dailyActions = await db.getActionsWithTime(startDate, endDate)
@@ -141,31 +120,8 @@ router.get('/', async function (req, res, next) {
 router.get('/visitor-paths/', async function (req, res, next) {
   try {
     if (res.authenticated) {
-      let startDate = moment().subtract(1, 'years').startOf('day').format('YYYY/MM/DD HH:mm:ss')
-      let selected = 'year'
-      switch (req.query.time) {
-        case 'today':
-          startDate = moment().startOf('day').format('YYYY/MM/DD HH:mm:ss')
-          selected = 'today'
-          break
-        case 'week':
-          startDate = moment().subtract(1, 'weeks').startOf('day').format('YYYY/MM/DD HH:mm:ss')
-          selected = 'week'
-          break
-        case 'month':
-          startDate = moment().subtract(1, 'months').startOf('day').format('YYYY/MM/DD HH:mm:ss')
-          selected = 'month'
-          break
-        case 'year':
-          startDate = moment().subtract(1, 'years').startOf('day').format('YYYY/MM/DD HH:mm:ss')
-          selected = 'year'
-          break
-      }
-
-      let endDate = moment().endOf('day').format('YYYY/MM/DD HH:mm:ss')
+      let { startDate, endDate, selected } = getTimePeriod(req.query.time)
       let allData = await db.getAllActions(startDate, endDate)
-
-      let pageCount = allData.length
       let visitors = []
 
       let formattedData = { order: [], data: {} }
@@ -209,31 +165,8 @@ router.get('/visitor-paths/', async function (req, res, next) {
 router.get('/visitor-activity/', async function (req, res, next) {
   try {
     if (res.authenticated) {
-      let startDate = moment().subtract(1, 'years').startOf('day').format('YYYY/MM/DD HH:mm:ss')
-      let selected = 'year'
-      switch (req.query.time) {
-        case 'today':
-          startDate = moment().startOf('day').format('YYYY/MM/DD HH:mm:ss')
-          selected = 'today'
-          break
-        case 'week':
-          startDate = moment().subtract(1, 'weeks').startOf('day').format('YYYY/MM/DD HH:mm:ss')
-          selected = 'week'
-          break
-        case 'month':
-          startDate = moment().subtract(1, 'months').startOf('day').format('YYYY/MM/DD HH:mm:ss')
-          selected = 'month'
-          break
-        case 'year':
-          startDate = moment().subtract(1, 'years').startOf('day').format('YYYY/MM/DD HH:mm:ss')
-          selected = 'year'
-          break
-      }
-
-      let endDate = moment().endOf('day').format('YYYY/MM/DD HH:mm:ss')
+      let { startDate, endDate, selected } = getTimePeriod(req.query.time)
       let allData = await db.getAllActions(startDate, endDate)
-
-      let pageCount = allData.length
       let days = []
 
       let formattedData = { order: [], data: {} }
@@ -277,28 +210,7 @@ router.get('/visitor-activity/', async function (req, res, next) {
 router.get('/visitor-activity/:id', async function (req, res, next) {
   try {
     if (res.authenticated) {
-      let startDate = moment().subtract(1, 'years').startOf('day').format('YYYY/MM/DD HH:mm:ss')
-      let selected = 'year'
-      switch (req.query.time) {
-        case 'today':
-          startDate = moment().startOf('day').format('YYYY/MM/DD HH:mm:ss')
-          selected = 'today'
-          break
-        case 'week':
-          startDate = moment().subtract(1, 'weeks').startOf('day').format('YYYY/MM/DD HH:mm:ss')
-          selected = 'week'
-          break
-        case 'month':
-          startDate = moment().subtract(1, 'months').startOf('day').format('YYYY/MM/DD HH:mm:ss')
-          selected = 'month'
-          break
-        case 'year':
-          startDate = moment().subtract(1, 'years').startOf('day').format('YYYY/MM/DD HH:mm:ss')
-          selected = 'year'
-          break
-      }
-
-      let endDate = moment().endOf('day').format('YYYY/MM/DD HH:mm:ss')
+      let { startDate, endDate, selected } = getTimePeriod(req.query.time)
       let allData
       if (req.params.id != null) {
         allData = await db.getActionsByVisitorId(req.params.id, startDate, endDate)
@@ -306,7 +218,6 @@ router.get('/visitor-activity/:id', async function (req, res, next) {
         allData = await db.getAllActions(startDate, endDate)
       }
       console.log(req.params.id)
-      let pageCount = allData.length
       let days = []
 
       let formattedData = { order: [], data: {} }
@@ -435,6 +346,31 @@ function getQueryFilter (query) {
     }
   })
   return filter
+}
+
+function getTimePeriod (time) {
+  let startDate = moment().subtract(1, 'years').startOf('day').format('YYYY/MM/DD HH:mm:ss')
+  let selected = 'year'
+  switch (time) {
+    case 'today':
+      startDate = moment().startOf('day').format('YYYY/MM/DD HH:mm:ss')
+      selected = 'today'
+      break
+    case 'week':
+      startDate = moment().subtract(1, 'weeks').startOf('day').format('YYYY/MM/DD HH:mm:ss')
+      selected = 'week'
+      break
+    case 'month':
+      startDate = moment().subtract(1, 'months').startOf('day').format('YYYY/MM/DD HH:mm:ss')
+      selected = 'month'
+      break
+    case 'year':
+      startDate = moment().subtract(1, 'years').startOf('day').format('YYYY/MM/DD HH:mm:ss')
+      selected = 'year'
+      break
+  }
+  let endDate = moment().endOf('day').format('YYYY/MM/DD HH:mm:ss')
+  return { startDate, endDate, selected }
 }
 
 module.exports = router

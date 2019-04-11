@@ -5,6 +5,7 @@
 Use the following code:
 
 ```javascript
+var HOST = 'https://openlab.ncl.ac.uk/dokku/mentoring-editor';
 var trackerActions = [];
 function pushAction(action, params){
     if (typeof tracker != 'undefined'){
@@ -18,7 +19,7 @@ function pushAction(action, params){
   r = false;
   s = document.createElement('script');
   s.type = 'text/javascript';
-  s.src = 'http://10.0.2.2:3000/javascripts/tracker/tracker.js';
+  s.src = HOST + '/javascripts/tracker/tracker.js';
   s.onload = s.onreadystatechange = function () {
     if (!r && (!this.readyState || this.readyState == 'complete')) {
       r = true;

@@ -2,6 +2,8 @@
 // TODO: set time elapsed from last action and correct for it on server when you send a batch of actions together
 
 var tracker = new function () {
+  var HOST = 'http://localhost:3000';
+  // var HOST = 'https://openlab.ncl.ac.uk/dokku/mentoring-editor';
   var SESSION_COOKIE = '_qtsc';
   var USER_COOKIE = '_qtuc';
   var CONSENT_COOKIE = '_qcs';
@@ -210,7 +212,7 @@ var tracker = new function () {
     params.push('l=' + _this.pageData.language)
     params.push('rf=' + encodeURIComponent(document.referrer))
 
-    pixel.setAttribute('src', 'https://openlab.ncl.ac.uk/dokku/mentoring-editor/track/pixel?' + params.join('&'));
+    pixel.setAttribute('src', HOST + '/track/pixel?' + params.join('&'));
     pixel.setAttribute('height', '1');
     pixel.setAttribute('width', '1');
     pixel.setAttribute('class', '_qtpx');

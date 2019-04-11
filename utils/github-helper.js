@@ -1,14 +1,13 @@
 var https = require('https')
-var fs = require('fs')
 var yaml = require('js-yaml')
-var withCatch = require('../utils/withCatch')
+var withCatch = require('../utils/withCatch').default
+const config = require('../utils/config')
 
 let GitHub = require('github-api')
-let gh, repo
 
 class GithubHelper {
   constructor () {
-    this.config = this._loadConfig()
+    this.config = config
   }
   /**
    *
@@ -23,17 +22,6 @@ class GithubHelper {
     const o = new GithubHelperObj(token, this.config)
     await o.initialize()
     return o
-  }
-
-  _loadConfig () {
-    try {
-      var doc = yaml.safeLoad(fs.readFileSync('./config.yml', 'utf-8'))
-      console.log(doc)
-      return doc
-    } catch (e) {
-      console.log(e)
-      return null
-    }
   }
 }
 
@@ -291,7 +279,7 @@ class GithubHelperObj {
 
   findLanguage (known, wanted) {
     let found
-    let knownKey = wanted == 'key' ? 'name' : 'key'
+    let knownKey = wanted === 'key' ? 'name' : 'key'
     for (let lang in this.editorConfig.languages) {
       // eslint-disable-next-line eqeqeq
       if (this.editorConfig.languages[lang][knownKey] == known) {
@@ -358,6 +346,7 @@ class GithubHelperObj {
           false
         )
       )
+      // eslint-disable-next-line eqeqeq
       if (post.err || post.data.error || post.data.status != 200) {
         // TODO: create new mentor
         return { error: "Couldn't retrieve the post" }
@@ -538,6 +527,7 @@ class GithubHelperObj {
           if (
             error ||
             result.error ||
+            // eslint-disable-next-line eqeqeq
             (result.status && result.status != 200)
           ) {
             throw new Error('failed to get content')
@@ -551,9 +541,6 @@ class GithubHelperObj {
     })
   }
 }
-/*********************************************************/
-
-/*********************************************************/
 
 function getBase64 (content) {
   return Buffer.from(content).toString('base64')

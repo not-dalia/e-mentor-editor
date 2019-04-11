@@ -12,9 +12,21 @@ router.get('/pixel', (req, res) => {
     'Content-Length': trackImg.length
   })
   console.log(req.query)
-  console.log(req.get('User-Agent'))
   res.end(trackImg)
+  let whitelistedDomains = [/^https?:\/\/([a-zA-Z\d-]+\.){0,}qudwa\.me/]
+  let whitelisted = false
+  let referrer = req.get('referrer')
+  whitelistedDomains.forEach(el => {
+    if (el.test(referrer)) {
+      whitelisted = true
+    }
+  })
 
+  if (!whitelisted) {
+    console.log(`Request from ${referrer} not whitelisted`)
+    logger.tracking.error(`Request from ${referrer} not whitelisted`, req.query)
+    return
+  }
   try {
     let extraData = req.query.ed || {}
     extraData.referrer = req.query.rf
@@ -64,20 +76,5 @@ async function insertOrUpdateVisitor (query) {
     logger.tracking.info(query)
   }
 }
-/* router.get('/request-intro/', async function (req, res) {
-  try {
-    let result = await db.getTest()
-    res.json({
-      success: true,
-      result: result
-    })
-  } catch (e) {
-    res.json({
-      success: false,
-      error: e
-    })
-    logger.error(e)
-  }
-}) */
 
 module.exports = router
