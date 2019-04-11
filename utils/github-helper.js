@@ -1,6 +1,6 @@
 var https = require('https')
 var yaml = require('js-yaml')
-var withCatch = require('../utils/withCatch').default
+var withCatch = require('../utils/withCatch')
 const config = require('../utils/config')
 
 let GitHub = require('github-api')
