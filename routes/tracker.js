@@ -24,26 +24,26 @@ router.get('/pixel', (req, res) => {
 
   if (!whitelisted) {
     console.log(`Request from ${referrer} not whitelisted`)
-    // logger.tracking.error(`Request from ${referrer} not whitelisted`, req.query)
-    return
-  }
-  try {
-    let extraData = req.query.ed || {}
-    extraData.referrer = req.query.rf
-    insertOrUpdateVisitor(req.query)
-    db.insertAction({
-      actionId: req.query.aid,
-      visitorId: req.query.uid,
-      actionType: req.query.at,
-      url: req.query.u,
-      actionData: req.query.ad,
-      language: req.query.l,
-      extraData: extraData,
-      sessionId: req.query.sid
-    })
-  } catch (err) {
-    logger.tracking.error(err)
-    logger.tracking.info(req.query)
+    logger.tracking.error(`Request from ${referrer} not whitelisted`, req.query)
+  } else {
+    try {
+      let extraData = req.query.ed || {}
+      extraData.referrer = req.query.rf
+      insertOrUpdateVisitor(req.query)
+      db.insertAction({
+        actionId: req.query.aid,
+        visitorId: req.query.uid,
+        actionType: req.query.at,
+        url: req.query.u,
+        actionData: req.query.ad,
+        language: req.query.l,
+        extraData: extraData,
+        sessionId: req.query.sid
+      })
+    } catch (err) {
+      logger.tracking.error(err)
+      logger.tracking.info(req.query)
+    }
   }
 })
 
