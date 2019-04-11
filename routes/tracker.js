@@ -12,7 +12,7 @@ router.get('/pixel', (req, res) => {
     'Content-Length': trackImg.length
   })
   console.log(req.query)
-  res.end(trackImg)
+  res.send(trackImg)
   let whitelistedDomains = [/^https?:\/\/([a-zA-Z\d-]+\.){0,}qudwa\.me/]
   let whitelisted = false
   let referrer = req.get('referrer')
@@ -22,10 +22,7 @@ router.get('/pixel', (req, res) => {
     }
   })
 
-  if (!whitelisted) {
-    console.log(`Request from ${referrer} not whitelisted`)
-    logger.tracking.error(`Request from ${referrer} not whitelisted`, req.query)
-  } else {
+  if (whitelisted) {
     try {
       let extraData = req.query.ed || {}
       extraData.referrer = req.query.rf
