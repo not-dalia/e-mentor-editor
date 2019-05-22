@@ -187,8 +187,8 @@ class DbHelper {
    * @param {action_id, visitor_id, action_type, url, action_data, language, extra_data, session_id, timestamp} data - {action_id, visitor_id, action_type, url, action_data, language, extra_data, session_id, timestamp}
    */
   insertAction (data) {
-    let sqlQuery = 'INSERT INTO action (action_id, visitor_id, action_type, url, action_data, language, extra_data, session_id, timestamp) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
-    let values = [data.actionId, data.visitorId, data.actionType, data.url, data.actionData, data.language, JSON.stringify(data.extraData || {}), data.sessionId, new Date()]
+    let sqlQuery = 'INSERT INTO action (action_id, visitor_id, action_type, url, action_data, language, extra_data, session_id, timestamp, referrer) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+    let values = [data.actionId, data.visitorId, data.actionType, data.url, data.actionData, data.language, JSON.stringify(data.extraData || {}), data.sessionId, new Date(), data.referrer]
     return this.execQuery(sqlQuery, values, logger.tracking)
   }
 

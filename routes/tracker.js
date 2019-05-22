@@ -39,6 +39,7 @@ router.get('/pixel', (req, res) => {
         actionData: req.query.ad,
         language: req.query.l,
         extraData: extraData,
+        referrer: req.query.rf,
         sessionId: req.query.sid
       })
     } catch (err) {
